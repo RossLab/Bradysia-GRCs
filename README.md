@@ -52,22 +52,15 @@ qsub -cwd -N kmc_dump_testes -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratc
 Finally, merge the two kmer dumps into one. Using a python script.
 
 ```
-# local testing
-./scripts/merge_two_dumps.py data/kmer_db/head_k27_sample.dump data/kmer_db/testes_k27_sample.dump > data/kmer_db/merged_k27_sample.dump
-```
-
-```{Rscript}
-library(hexbin)
-library(RColorBrewer)
-rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-r <- rf(32)
-
-kmer_dump <- read.table('data/kmer_db/merged_k27_sample.dump', col.names = c('kmer', 'heads', 'testes'))
-hexbinplot(testes ~ heads, data=kmer_dump, colramp=rf)
-```
-
-```
 qsub -cwd -N dump_merging -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; ./scripts/merge_two_dumps.py data/kmer_db/head_k27.dump data/kmer_db/testes_k27.dump > $SCRATCH/merged_k27.dump && mv $SCRATCH/merged_k27.dump data/kmer_db/; rmdir $SCRATCH'
+```
+
+This will take approximatelly an hour and half. If that works out I can use simply the threshold up there to create fasta files with A/X/L kmers.
+
+Just to be sure that I gut more less that same 2d histogram as Christina I'll just plot it in R, although I know that it is not the most efficient way. To reduce the time, I just extract the coverages
+
+```
+qsub -cwd -N 2d_hist_plot -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; awk \'{print $2 "\t" $3}\' data/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump && Rscript scripts/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump && rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
 ```
 
 #### Step 2 - matching the kmers to long reads
