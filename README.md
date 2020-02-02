@@ -49,18 +49,25 @@ qsub -cwd -N kmc_testes -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$US
 qsub -cwd -N kmc_dump_testes -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; kmc_tools transform data/kmer_db/testes_kmer_counts -ci$L -cx$U dump -s $SCRATCH/testes_k27.dump && mv $SCRATCH/testes_k27.dump data/kmer_db'
 ```
 
-Finally, merge the two kmer dumps into one. Using a python script.
+merge the two kmer dumps into one. Using a python script.
 
 ```
 qsub -cwd -N dump_merging -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; ./scripts/merge_two_dumps.py data/kmer_db/head_k27.dump data/kmer_db/testes_k27.dump > $SCRATCH/merged_k27.dump && mv $SCRATCH/merged_k27.dump data/kmer_db/; rmdir $SCRATCH'
 ```
 
-This will take approximatelly an hour and half. If that works out I can use simply the threshold up there to create fasta files with A/X/L kmers.
+This will take approximatelly an hour and half. If that works out I can use simply the threshold up there to create fasta files with A/X/L kmers. Using the treshold above we generate kmer fasta files using another python sript
+
+```
+qsub -cwd -N sort_out_kmers -V -pe smp64 1 -b yes 'scripts/dump2fasta.py data/kmer_db/merged_k27.dump'
+```
 
 Just to be sure that I gut more less that same 2d histogram as Christina I'll just plot it in R, although I know that it is not the most efficient way. To reduce the time, I just extract the coverages
 
 ```
-qsub -cwd -N 2d_hist_plot -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; awk \'{print $2 "\t" $3}\' data/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump && Rscript scripts/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump && rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
+SCRATCH=/scratch/$USER/$JOB_ID/
+awk '{print $2 "\t" $3}' data/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump 
+Rscript scripts/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump 
+rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
 ```
 
 #### Step 2 - matching the kmers to long reads
