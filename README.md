@@ -30,6 +30,46 @@ AGCGGC  24	1
 
 with this then it will be quite streightforward to subselect sets described above.
 
+##### actually doing it
+
+Extract dumps of kmers using [kmc](https://github.com/refresh-bio/KMC).
+
+```
+conda activate default_genomics
+# build kmer db
+qsub -cwd -N kmc_heads -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/raw_reads/bamfilter.head2.clc.mar29.scop.head2.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/head_kmer_counts $SCRATCH/tmp && mv $SCRATCH/head_kmer_counts* data/kmer_db'
+# generate alphabetically sorted dump of kmers and their coverages
+qsub -cwd -N kmc_dump_heads -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID; mkdir -p $SCRATCH; kmc_tools transform data/kmer_db/head_kmer_counts -ci$L -cx$U dump -s $SCRATCH/head_k27.dump && mv $SCRATCH/head_k27.dump data/kmer_db'
+```
+
+and the same for testes
+
+```
+qsub -cwd -N kmc_testes -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/raw_reads/bamfilter.testes.clc.mar29.scop.testes.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/testes_kmer_counts $SCRATCH/tmp && mv $SCRATCH/testes_kmer_counts* data/kmer_db'
+qsub -cwd -N kmc_dump_testes -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; kmc_tools transform data/kmer_db/testes_kmer_counts -ci$L -cx$U dump -s $SCRATCH/testes_k27.dump && mv $SCRATCH/testes_k27.dump data/kmer_db'
+```
+
+Finally, merge the two kmer dumps into one. Using a python script.
+
+```
+# local testing
+./scripts/merge_two_dumps.py data/kmer_db/head_k27_sample.dump data/kmer_db/testes_k27_sample.dump > data/kmer_db/merged_k27_sample.dump
+```
+
+```{Rscript}
+library(hexbin)
+library(RColorBrewer)
+rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
+r <- rf(32)
+
+kmer_dump <- read.table('data/kmer_db/merged_k27_sample.dump', col.names = c('kmer', 'heads', 'testes'))
+hexbinplot(testes ~ heads, data=kmer_dump, colramp=rf)
+```
+
+```
+qsub -cwd -N dump_merging -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; ./scripts/merge_two_dumps.py data/kmer_db/head_k27.dump data/kmer_db/testes_k27.dump > $SCRATCH/merged_k27.dump && mv $SCRATCH/merged_k27.dump data/kmer_db/; rmdir $SCRATCH'
+```
+
 #### Step 2 - matching the kmers to long reads
 
 KAT has a tool that subselect sequences that have a kmer in a hash. I could build hashes out of the kmer subsets and then use that function to subselect PB reads. However, this won't allow a exploring.
