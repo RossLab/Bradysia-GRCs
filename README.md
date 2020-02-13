@@ -74,6 +74,37 @@ rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
 
 KAT has a tool that subselect sequences that have a kmer in a hash. I could build hashes out of the kmer subsets and then use that function to subselect PB reads. However, this won't allow a exploring.
 
+##### Exploring mappability of kmers
+
+Before I will attempt a scalable solution. I will attempt to take a relatively small set of reads (5000?) and map the three kemrs on them. That should be relatively fast (actualy that should be nearly that same fast as mapping to all the reads, but the difference is that I won't have to deal with memory).
+
+I will try a `bwa mem` quick and dirty approach suggested [here](https://bioinformatics.stackexchange.com/a/7299/57).
+
+```
+zcat /data/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' | head -10000 > data/raw_reads/PB_sample.fasta
+bwa index data/raw_reads/PB_sample.fasta
+# data/kmers_k27_X.fasta
+# data/kmers_k27_A.fasta
+# data/kmers_k27_L.fasta
+qsub -cwd -N map_X_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/X-27mer_mapped_to_sample.bam'
+qsub -cwd -N map_L_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_L.fasta | samtools sort -@6 -O bam - > data/L-27mer_mapped_to_sample.bam'
+qsub -cwd -N map_A_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_A.fasta | samtools sort -@6 -O bam - > data/A-27mer_mapped_to_sample.bam'
+```
+
+
+Let's try to build bwa index on the full read set.
+
+```
+zcat /data/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' > data/raw_reads/PB_testes.fasta
+qsub -cwd -N build_bwa -V -pe smp64 1 -b yes 'bwa index data/raw_reads/PB_testes.fasta'
+```
+
+and map the smallest kmer set to them
+
+```
+qsub -cwd -N map_X_kmers -V -pe smp64 32 -b yes 'bwa mem -t 26 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_testes.fasta data/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/mapping_testes_27mer_X.bam'
+```
+
 ### Potential tweaks
 
 I do see some potential pitfalls, here I write what we could do to solve them
