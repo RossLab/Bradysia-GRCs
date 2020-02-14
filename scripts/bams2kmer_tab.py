@@ -1,23 +1,30 @@
+#!/usr/bin/env python3
+
 # arguments L_bam, X_bam, A_bam
 
-L_bamfile = 'data/L-27mer_mapped_to_sample.bam'
-X_bamfile = 'data/X-27mer_mapped_to_sample.bam'
-A_bamfile = 'data/A-27mer_mapped_to_sample.bam'
-
+from sys import stderr
+import sys
 import pysam
 from collections import defaultdict
 
+L_bamfile = sys.argv[1]
+X_bamfile = sys.argv[2]
+A_bamfile = sys.argv[3]
+
+stderr.write('Input files:\n')
+stderr.write('	L bamfile: ' + L_bamfile + '\n')
+stderr.write('	X bamfile: ' + X_bamfile + '\n')
+stderr.write('	A bamfile: ' + A_bamfile + '\n')
+
+stderr.write('Checking indexes\n')
 for bamfile in [L_bamfile, X_bamfile, A_bamfile]:
 	with pysam.AlignmentFile(bamfile, "rb") as bam:
 		if not bam.check_index():
+			stderr.write('\tIndexing ' + bamfile + '\n')
 			pysam.index(bamfile)
+		else:
+			stderr.write('\t' + bamfile + ' is already indexed\n')
 
-
-A_bam = pysam.AlignmentFile(A_bamfile, "rb")
-if not A_bam.check_index():
-	pysam.index(A_bamfile)
-	A_bam.close()
-	A_bam = pysam.AlignmentFile(A_bamfile, "rb")
 
 class mapped_kmers(object):
     def __init__(self):
@@ -35,25 +42,33 @@ class mapped_kmers(object):
     def addA(self):
         self.A += 1
 
-read_table = defaultdict(mapped_kmers)
+stderr.write('Processing mapping files\n')
+seq_table = defaultdict(mapped_kmers)
 
 with pysam.AlignmentFile(L_bamfile, "rb") as L_bam:
-	for read in L_bam.fetch():
-		read_table[read.reference_name].addL()
+	for seq in L_bam.fetch():
+		seq_table[seq.reference_name].addL()
+stderr.write('\tL bamfile done\n')
 
 with pysam.AlignmentFile(A_bamfile, "rb") as A_bam:
-	for read in A_bam.fetch():
-		read_table[read.reference_name].addA()
+	for seq in A_bam.fetch():
+		seq_table[seq.reference_name].addA()
+stderr.write('\tA bamfile done\n')
 
 with pysam.AlignmentFile(X_bamfile, "rb") as X_bam:
-	for read in X_bam.fetch():
-		read_table[read.reference_name].addX()
+	for seq in X_bam.fetch():
+		seq_table[seq.reference_name].addX()
+stderr.write('\tX bamfile done\n')
 
-read_table_file = "data/read_mpped_kmer.tsv"
-with open(read_table_file, 'w') as outtab:
+seq_table_file = "table_of_mapped_kmers.tsv"
+stderr.write('Writing output in +' + seq_table_file + '\n')
+
+with open(seq_table_file, 'w') as outtab:
 	outtab.write('len\tL\tX\tA\n')
-	for read in read_table.keys():
-		read_mapped_kmers = read_table[read]
-		start, end = read.split("/")[2].split("_")
-		read_length = int(end) - int(start)
-		outtab.write('{}\t{}\t{}\t{}\n'.format(read_length, read_mapped_kmers.L, read_mapped_kmers.X, read_mapped_kmers.A))
+	for seq in seq_table.keys():
+		seq_mapped_kmers = seq_table[seq]
+		start, end = seq.split("/")[2].split("_")
+		seq_length = int(end) - int(start)
+		outtab.write('{}\t{}\t{}\t{}\n'.format(seq_length, seq_mapped_kmers.L, seq_mapped_kmers.X, seq_mapped_kmers.A))
+
+stderr.write('Everything is done now\n')
