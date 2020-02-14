@@ -19,12 +19,14 @@ stderr.write('	A bamfile: ' + A_bamfile + '\n')
 stderr.write('Checking indexes\n')
 for bamfile in [L_bamfile, X_bamfile, A_bamfile]:
 	with pysam.AlignmentFile(bamfile, "rb") as bam:
-		if not bam.check_index():
+		try:
+			bam.check_index()
+			bam.close()
+			stderr.write('\t' + bamfile + ' is already indexed\n')
+		except ValueError:
+			bam.close()
 			stderr.write('\tIndexing ' + bamfile + '\n')
 			pysam.index(bamfile)
-		else:
-			stderr.write('\t' + bamfile + ' is already indexed\n')
-
 
 class mapped_kmers(object):
     def __init__(self):
