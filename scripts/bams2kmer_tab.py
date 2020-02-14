@@ -64,11 +64,9 @@ seq_table_file = "table_of_mapped_kmers.tsv"
 stderr.write('Writing output in +' + seq_table_file + '\n')
 
 with open(seq_table_file, 'w') as outtab:
-	outtab.write('len\tL\tX\tA\n')
+	outtab.write('id\tL\tX\tA\n')
 	for seq in seq_table.keys():
 		seq_mapped_kmers = seq_table[seq]
-		start, end = seq.split("/")[2].split("_")
-		seq_length = int(end) - int(start)
-		outtab.write('{}\t{}\t{}\t{}\n'.format(seq_length, seq_mapped_kmers.L, seq_mapped_kmers.X, seq_mapped_kmers.A))
+		outtab.write('{}\t{}\t{}\t{}\n'.format(seq, seq_mapped_kmers.L, seq_mapped_kmers.X, seq_mapped_kmers.A))
 
 stderr.write('Everything is done now\n')
