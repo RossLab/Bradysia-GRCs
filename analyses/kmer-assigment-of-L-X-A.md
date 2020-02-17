@@ -37,36 +37,36 @@ Extract dumps of kmers using [kmc](https://github.com/refresh-bio/KMC).
 ```
 conda activate default_genomics
 # build kmer db
-qsub -cwd -N kmc_heads -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/raw_reads/bamfilter.head2.clc.mar29.scop.head2.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/head_kmer_counts $SCRATCH/tmp && mv $SCRATCH/head_kmer_counts* data/kmer_db'
+qsub -cwd -N kmc_heads -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/L-X-A-kmers/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/L-X-A-kmers/raw_reads/bamfilter.head2.clc.mar29.scop.head2.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/head_kmer_counts $SCRATCH/tmp && mv $SCRATCH/head_kmer_counts* data/L-X-A-kmers/kmer_db'
 # generate alphabetically sorted dump of kmers and their coverages
-qsub -cwd -N kmc_dump_heads -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID; mkdir -p $SCRATCH; kmc_tools transform data/kmer_db/head_kmer_counts -ci$L -cx$U dump -s $SCRATCH/head_k27.dump && mv $SCRATCH/head_k27.dump data/kmer_db'
+qsub -cwd -N kmc_dump_heads -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID; mkdir -p $SCRATCH; kmc_tools transform data/L-X-A-kmers/kmer_db/head_kmer_counts -ci$L -cx$U dump -s $SCRATCH/head_k27.dump && mv $SCRATCH/head_k27.dump data/L-X-A-kmers/kmer_db'
 ```
 
 and the same for testes
 
 ```
-qsub -cwd -N kmc_testes -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/raw_reads/bamfilter.testes.clc.mar29.scop.testes.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/testes_kmer_counts $SCRATCH/tmp && mv $SCRATCH/testes_kmer_counts* data/kmer_db'
-qsub -cwd -N kmc_dump_testes -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; kmc_tools transform data/kmer_db/testes_kmer_counts -ci$L -cx$U dump -s $SCRATCH/testes_k27.dump && mv $SCRATCH/testes_k27.dump data/kmer_db'
+qsub -cwd -N kmc_testes -V -pe smp64 20 -b yes 'L=5; U=175; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH/tmp data/L-X-A-kmers/kmer_db; kmc -k27 -t20 -m64 -ci$L -cs$U data/L-X-A-kmers/raw_reads/bamfilter.testes.clc.mar29.scop.testes.vs.scop.clc.sorted.bam.InIn.fq.gz $SCRATCH/testes_kmer_counts $SCRATCH/tmp && mv $SCRATCH/testes_kmer_counts* data/L-X-A-kmers/kmer_db'
+qsub -cwd -N kmc_dump_testes -V -pe smp64 20 -b yes 'L=5; U=174; SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; kmc_tools transform data/L-X-A-kmers/kmer_db/testes_kmer_counts -ci$L -cx$U dump -s $SCRATCH/testes_k27.dump && mv $SCRATCH/testes_k27.dump data/L-X-A-kmers/kmer_db'
 ```
 
 merge the two kmer dumps into one. Using a python script.
 
 ```
-qsub -cwd -N dump_merging -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; ./scripts/merge_two_dumps.py data/kmer_db/head_k27.dump data/kmer_db/testes_k27.dump > $SCRATCH/merged_k27.dump && mv $SCRATCH/merged_k27.dump data/kmer_db/; rmdir $SCRATCH'
+qsub -cwd -N dump_merging -V -pe smp64 1 -b yes 'SCRATCH=/scratch/$USER/$JOB_ID/; mkdir -p $SCRATCH; ./scripts/kmer-assigment-of-L-X-A/merge_two_dumps.py data/L-X-A-kmers/kmer_db/head_k27.dump data/L-X-A-kmers/kmer_db/testes_k27.dump > $SCRATCH/merged_k27.dump && mv $SCRATCH/merged_k27.dump data/L-X-A-kmers/kmer_db/; rmdir $SCRATCH'
 ```
 
 This will take approximatelly an hour and half. If that works out I can use simply the threshold up there to create fasta files with A/X/L kmers. Using the treshold above we generate kmer fasta files using another python sript
 
 ```
-qsub -cwd -N sort_out_kmers -V -pe smp64 1 -b yes 'scripts/dump2fasta.py data/kmer_db/merged_k27.dump'
+qsub -cwd -N sort_out_kmers -V -pe smp64 1 -b yes 'scripts/kmer-assigment-of-L-X-A/dump2fasta.py data/L-X-A-kmers/kmer_db/merged_k27.dump'
 ```
 
 Just to be sure that I gut more less that same 2d histogram as Christina I'll just plot it in R, although I know that it is not the most efficient way. To reduce the time, I just extract the coverages
 
 ```
 SCRATCH=/scratch/$USER/$JOB_ID/
-awk '{print $2 "\t" $3}' data/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump 
-Rscript scripts/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump 
+awk '{print $2 "\t" $3}' data/L-X-A-kmers/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump 
+Rscript scripts/kmer-assigment-of-L-X-A/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump 
 rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
 ```
 
@@ -81,28 +81,28 @@ Before I will attempt a scalable solution. I will attempt to take a relatively s
 I will try a `bwa mem` quick and dirty approach suggested [here](https://bioinformatics.stackexchange.com/a/7299/57).
 
 ```
-zcat /data/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' | head -10000 > data/raw_reads/PB_sample.fasta
-bwa index data/raw_reads/PB_sample.fasta
-# data/kmers_k27_X.fasta
-# data/kmers_k27_A.fasta
-# data/kmers_k27_L.fasta
-qsub -cwd -N map_X_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/X-27mer_mapped_to_sample.bam'
-qsub -cwd -N map_L_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_L.fasta | samtools sort -@6 -O bam - > data/L-27mer_mapped_to_sample.bam'
-qsub -cwd -N map_A_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_sample.fasta data/kmers_k27_A.fasta | samtools sort -@6 -O bam - > data/A-27mer_mapped_to_sample.bam'
+zcat /data/L-X-A-kmers/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' | head -10000 > data/L-X-A-kmers/raw_reads/PB_sample.fasta
+bwa index data/L-X-A-kmers/raw_reads/PB_sample.fasta
+# data/L-X-A-kmers/kmers_k27_X.fasta
+# data/L-X-A-kmers/kmers_k27_A.fasta
+# data/L-X-A-kmers/kmers_k27_L.fasta
+qsub -cwd -N map_X_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/L-X-A-kmers/raw_reads/PB_sample.fasta data/L-X-A-kmers/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/L-X-A-kmers/X-27mer_mapped_to_sample.bam'
+qsub -cwd -N map_L_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/L-X-A-kmers/raw_reads/PB_sample.fasta data/L-X-A-kmers/kmers_k27_L.fasta | samtools sort -@6 -O bam - > data/L-X-A-kmers/L-27mer_mapped_to_sample.bam'
+qsub -cwd -N map_A_kmers -V -pe smp64 16 -b yes 'bwa mem -t 10 -k 27 -T 27 -a -c 5000 data/L-X-A-kmers/raw_reads/PB_sample.fasta data/L-X-A-kmers/kmers_k27_A.fasta | samtools sort -@6 -O bam - > data/L-X-A-kmers/A-27mer_mapped_to_sample.bam'
 ```
 
 
 Let's try to build bwa index on the full read set.
 
 ```
-zcat /data/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' > data/raw_reads/PB_testes.fasta
-qsub -cwd -N build_bwa -V -pe smp64 1 -b yes 'bwa index data/raw_reads/PB_testes.fasta'
+zcat /data/L-X-A-kmers/ross/sequencing/raw/cgr.liv.ac.uk/pbio/LIMS21670_c553b0c0ac9a6d5a/1/FilteredSubreads/subreads.fastq.gz | sed -n '1~4s/^@/>/p;2~4p' > data/L-X-A-kmers/raw_reads/PB_testes.fasta
+qsub -cwd -N build_bwa -V -pe smp64 1 -b yes 'bwa index data/L-X-A-kmers/raw_reads/PB_testes.fasta'
 ```
 
 and map the smallest kmer set to them
 
 ```
-qsub -cwd -N map_X_kmers -V -pe smp64 32 -b yes 'bwa mem -t 26 -k 27 -T 27 -a -c 5000 data/raw_reads/PB_testes.fasta data/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/mapping_testes_27mer_X.bam'
+qsub -cwd -N map_X_kmers -V -pe smp64 32 -b yes 'bwa mem -t 26 -k 27 -T 27 -a -c 5000 data/L-X-A-kmers/raw_reads/PB_testes.fasta data/L-X-A-kmers/kmers_k27_X.fasta | samtools sort -@6 -O bam - > data/L-X-A-kmers/mapping_testes_27mer_X.bam'
 ```
 
 ### Potential tweaks
