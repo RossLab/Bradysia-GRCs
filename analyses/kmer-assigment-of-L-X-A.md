@@ -1,8 +1,26 @@
-### The assembly of Sciara
+### Sorting of Sciara genome
 
-This is an exprimental approach for an assembly of the fungus gnat genome using combined information of two PacBio and Illumina datasets. The progress is recorded [here](https://github.com/RossLab/projects/1).
+The goal is to figure reliable assignment of genome assembly of Scaira to X-linked (X), L-linked (L) and autosomal (A) sequences. 
+- [Project board](https://github.com/RossLab/projects/1).
 
-#### Step 1 - isolation of kmers
+
+Input data:
+ - Illumina testes
+ - Illumina head
+ - Illumina testes assembly (spades)
+ - PacBio testes
+ - PacBio heads (with the X inversion)
+ - PacBio testes polished assembly (ReadBeans, Racon with both long and short reads)
+
+Using 2d kmer spectra of the Illumina testes and head samples we can quite well identify individual clouds of kmers that belong to A/X/L respectively. The first step will be to isolate the kmers. Then there are several options:
+1. Categorise scaffolds of the Illumina asm; then map Illumina asm to PacBio asm
+2. Categorise directly ctigs of the PacBio asm
+3. Categorise PacBio reads and assemble separatelly A/X/L
+4. Categoriaw Illumina reads and map the reads to improve the mapping (and the exact matches will make finishing out the reads much easier)
+
+We aim for clear cut separation. If there will be any discrepancy in the signal, we need to understand why.
+
+#### Isolation of kmers
 
 Isolation of kmers that correspond to X, L or autosomes respectively. For 27-mers the coverage thresholds could be
 
@@ -70,7 +88,27 @@ Rscript scripts/kmer-assigment-of-L-X-A/plot_2d_histogram.R $SCRATCH/merged_k27_
 rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
 ```
 
-#### Step 2 - matching the kmers to long reads
+#### Options 1 and 2 - matching the kmers to assemblies
+
+Christina mapped the kmers to both assemblies (TODO add the commands) and using `scripts/kmer-assigment-of-L-X-A/bams2kmer_tab.py` script she got the table of number of L/X/A kmers assigned to each scaffold
+
+```
+data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv  # Illumina assembly
+data/Pacbio/6_kmermapping/table_of_mapped_kmers_PacBio.tsv         # PacBio assembly
+```
+
+I will also need a list of lengths of PacBio contifs
+
+```
+samtools view -H data/Pacbio/6_kmermapping/A-27mer_mapped_racon6pe.bam | grep "^@SQ" | awk '{ print substr($2,4) "\t" substr($3,4) }' > data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv
+```
+
+Let's explore quality of asignment for each and compare them.
+
+
+
+
+#### Option 3 - matching the kmers to long reads
 
 KAT has a tool that subselect sequences that have a kmer in a hash. I could build hashes out of the kmer subsets and then use that function to subselect PB reads. However, this won't allow a exploring.
 
