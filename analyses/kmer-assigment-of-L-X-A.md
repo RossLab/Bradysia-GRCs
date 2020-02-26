@@ -1,6 +1,6 @@
 ### Sorting of Sciara genome
 
-The goal is to figure reliable assignment of genome assembly of Scaira to X-linked (X), L-linked (L) and autosomal (A) sequences. 
+The goal is to figure reliable assignment of genome assembly of Scaira to X-linked (X), L-linked (L) and autosomal (A) sequences.
 - [Project board](https://github.com/RossLab/projects/1).
 
 
@@ -83,9 +83,21 @@ Just to be sure that I gut more less that same 2d histogram as Christina I'll ju
 
 ```
 SCRATCH=/scratch/$USER/$JOB_ID/
-awk '{print $2 "\t" $3}' data/L-X-A-kmers/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump 
-Rscript scripts/kmer-assigment-of-L-X-A/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump 
+awk '{print $2 "\t" $3}' data/L-X-A-kmers/kmer_db/merged_k27.dump > $SCRATCH/merged_k27_cov_only.dump
+Rscript scripts/kmer-assigment-of-L-X-A/plot_2d_histogram.R $SCRATCH/merged_k27_cov_only.dump
 rm $SCRATCH/merged_k27_cov_only.dump && rmdir $SCRATCH'
+```
+
+Ha, one more thing. Is it possible to get the L size using kmers?
+
+```
+scripts/kmer-assigment-of-L-X-A/dump2hist.py data/L-X-A-kmers/kmer_db/merged_k27.dump data/L-X-A-kmers/L_kmers_k27.hist
+```
+
+generates the histogram that I will feed to genomescope
+
+```
+genomescope.R -i data/L-X-A-kmers/L_kmers_k27.hist -o data/L-X-A-kmers/L_profiling -p 1 -k 27 -n L_profiling
 ```
 
 #### Options 1 and 2 - matching the kmers to assemblies
@@ -104,8 +116,6 @@ samtools view -H data/Pacbio/6_kmermapping/A-27mer_mapped_racon6pe.bam | grep "^
 ```
 
 Let's explore quality of asignment for each and compare them.
-
-
 
 
 #### Option 3 - matching the kmers to long reads
@@ -156,7 +166,7 @@ Here for different kmer lengths probabilities of a read kmer matching representi
 k = 27; 0.078;
 k = 21; 0.138;
 k = 17; 0.201;
- 
+
 7.8% of kmers matching seems fine to me even for the shorter reads in the dataset. For sanity reasons I will do some simple simulations
 
 ```{R}
@@ -165,8 +175,8 @@ simulate_read <- function(k, error_rate, read_length){ simulated_bases <- rbinom
 # running 1000 replicates
 k27_rl1000 <- sapply(rep(27, 1000), simulate_read, 0.09, 1000)
 quantile(k27_rl1000, 0.01)
-> 1% 
-> 11 
+> 1%
+> 11
 ```
 
 i.e. 99% of reads at least 1000 bases long should have more than 11 kmers matching, which should be more than sufficient to classify the read. However, here I don't take into account that a certain proportion of the genome is not in a single copy.
