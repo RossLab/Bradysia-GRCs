@@ -115,8 +115,19 @@ I will also need a list of lengths of PacBio contifs
 samtools view -H data/Pacbio/6_kmermapping/A-27mer_mapped_racon6pe.bam | grep "^@SQ" | awk '{ print substr($2,4) "\t" substr($3,4) }' > data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv
 ```
 
-Let's explore quality of asignment for each and compare them.
+Let's explore quality of assignment for each and compare them. So it seems that the assignment is not perfect. Nearly all scaffolds have more than one category of kmers mapping on them. Usually it's not that bad, but in some cases it is. So here I will list scaffolds for manual inspection:
 
+```
+NODE_111_length_108693_cov_157.826416 A_good
+NODE_7997_length_13166_cov_196.567652 A_not_so_good
+NODE_10390_length_10238_cov_60.917233 A_bad
+NODE_11_length_214552_cov_15.287819 L_good
+NODE_6070_length_16622_cov_58.780840 L_not_so_good
+NODE_6924_length_14884_cov_267.317755 L_bad
+NODE_698_length_57939_cov_142.454651 X_good
+NODE_10311_length_10320_cov_143.184516 X_not_so_good
+NODE_10352_length_10284_cov_103.883903 X_bad
+```
 
 #### Option 3 - matching the kmers to long reads
 
