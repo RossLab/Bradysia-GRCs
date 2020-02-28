@@ -175,9 +175,9 @@ plot_dot_plot(j_kmers, 'density', 'score')
 plot_dot_plot(j_kmers, 'len', 'density')
 # also true for PB, but a bit less strongly
 
-sapply(c('X', 'L', 'A'), function(x){ sum(sr_kmers[sr_kmers$naive_assignment == x, 'len']) / 1e6 } )
-sapply(c('X', 'L', 'A'), function(x){ sum(sr_kmers[lr_kmers$naive_assignment == x, 'len']) / 1e6 } )
-sapply(c('X', 'L', 'A'), function(x){ sum(sr_kmers[j_kmers$naive_assignment == x, 'len']) / 1e6 } )
+sapply(c('X', 'L', 'A'), function(x){ round(sum(sr_kmers[sr_kmers$naive_assignment == x, 'len']) / 1e6, 2) } )
+sapply(c('X', 'L', 'A'), function(x){ round(sum(lr_kmers[lr_kmers$naive_assignment == x, 'len']) / 1e6, 2) } )
+sapply(c('X', 'L', 'A'), function(x){ round(sum(j_kmers[j_kmers$naive_assignment == x, 'len']) / 1e6, 2) } )
 
 head(j_kmers[,2:4])
 
