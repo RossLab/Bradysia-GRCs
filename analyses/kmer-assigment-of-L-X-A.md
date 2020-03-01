@@ -1,7 +1,7 @@
 ### Sorting of Sciara genome
 
 The goal is to figure reliable assignment of genome assembly of Scaira to X-linked (X), L-linked (L) and autosomal (A) sequences.
-- [Project board](https://github.com/RossLab/projects/1).
+- [Project board](https://github.com/orgs/RossLab/projects/1).
 
 
 Input data:
@@ -136,7 +136,7 @@ Check coverage depth of `ctg11` in PB asm it has practically no kmers mapping.
 ```
 python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/Pacbio/6_kmermapping/illumina_inspected_scfs.depth data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv
 python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/Pacbio/6_kmermapping/illumina_NODE_99_length_112107.depth 500 > data/Pacbio/6_kmermapping/table_of_mapped_kmers_NODE_99_length_112107.tsv
-data/Pacbio/6_kmermapping/racon6pe_inspected_scfs.depth
+# data/Pacbio/6_kmermapping/racon6pe_inspected_scfs.depth
 ```
 
 and explore the tables in [scripts/kmer-assigment-of-L-X-A/plot_blockwise_kmer_assignment.R](scripts/kmer-assigment-of-L-X-A/plot_blockwise_kmer_assignment.R).
