@@ -105,14 +105,14 @@ genomescope.R -i data/L-X-A-kmers/L_kmers_k27.hist -o data/L-X-A-kmers/L_profili
 Christina mapped the kmers to both assemblies (TODO add the commands) and using `scripts/kmer-assigment-of-L-X-A/bams2kmer_tab.py` script she got the table of number of L/X/A kmers assigned to each scaffold
 
 ```
-data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv  # Illumina assembly
-data/Pacbio/6_kmermapping/table_of_mapped_kmers_PacBio.tsv         # PacBio assembly
+data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv  # Illumina assembly
+data/L-X-A-kmers/mapping/table_of_mapped_kmers_PacBio.tsv         # PacBio assembly
 ```
 
 I will also need a list of lengths of PacBio contifs
 
 ```
-samtools view -H data/Pacbio/6_kmermapping/A-27mer_mapped_racon6pe.bam | grep "^@SQ" | awk '{ print substr($2,4) "\t" substr($3,4) }' > data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv
+samtools view -H data/L-X-A-kmers/mapping/A-27mer_mapped_racon6pe.bam | grep "^@SQ" | awk '{ print substr($2,4) "\t" substr($3,4) }' > data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv
 ```
 
 The quality of assignment for each is explored in [this script](scripts/kmer-assigment-of-L-X-A/exploring_mapped_kmers_in_assemblies.R). So it seems that the assignment is not perfect. Nearly all scaffolds have more than one category of kmers mapping on them. Usually it's not that bad, but in some cases it is. So manually inspect some of Illumina and PacBio assmeblies
@@ -134,9 +134,9 @@ samtools depth -f racon6pe_bam_files.list -b  racon6pe_scaffolds_to_inspect.bed 
 Check coverage depth of `ctg11` in PB asm it has practically no kmers mapping.
 
 ```
-python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/Pacbio/6_kmermapping/illumina_inspected_scfs.depth data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv
-python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/Pacbio/6_kmermapping/illumina_NODE_99_length_112107.depth 500 > data/Pacbio/6_kmermapping/table_of_mapped_kmers_NODE_99_length_112107.tsv
-# data/Pacbio/6_kmermapping/racon6pe_inspected_scfs.depth
+python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/L-X-A-kmers/mapping/illumina_inspected_scfs.depth data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv
+python3 scripts/kmer-assigment-of-L-X-A/kmer_depth2blockwise_depth.py data/L-X-A-kmers/mapping/illumina_NODE_99_length_112107.depth 500 > data/L-X-A-kmers/mapping/table_of_mapped_kmers_NODE_99_length_112107.tsv
+# data/L-X-A-kmers/mapping/racon6pe_inspected_scfs.depth
 ```
 
 and explore the tables in [scripts/kmer-assigment-of-L-X-A/plot_blockwise_kmer_assignment.R](scripts/kmer-assigment-of-L-X-A/plot_blockwise_kmer_assignment.R).
@@ -155,7 +155,7 @@ The input for the assignment is
 
 ```
 data/highcov_germ.tsv # coverage table
-data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv # mapped kmers table
+data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv # mapped kmers table
 ```
 
 and it is done in [scripts/kmer-assigment-of-L-X-A/L-assignment.R](scripts/kmer-assigment-of-L-X-A/L-assignment.R) script.

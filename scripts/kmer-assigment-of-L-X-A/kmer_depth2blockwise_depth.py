@@ -3,7 +3,7 @@ from sys import stdout
 from sys import argv
 
 depth_filename = argv[1]
-# depth_filename = 'data/Pacbio/6_kmermapping/illumina_inspected_scfs.depth'
+# depth_filename = 'data/L-X-A-kmers/mapping/illumina_inspected_scfs.depth'
 window_size = int(argv[2])
 # window_size = 5000
 

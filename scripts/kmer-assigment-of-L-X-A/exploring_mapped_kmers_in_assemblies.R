@@ -2,25 +2,25 @@
 
 
 # to Illumina spades assembly
-sr_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
 sr_kmers$len <- sapply(strsplit(sr_kmers$id, '_'), function(x){ as.integer(x[4]) } )
 
 # to PacBio assembly
-lr_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers_PacBio.tsv", header = T, sep = '\t', stringsAsFactors = F)
-lr_contig_lengths <- read.table('data/Pacbio/6_kmermapping/racon6pe_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
+lr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_PacBio.tsv", header = T, sep = '\t', stringsAsFactors = F)
+lr_contig_lengths <- read.table('data/L-X-A-kmers/mapping/racon6pe_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
 lr_kmers <- merge(lr_kmers, lr_contig_lengths)
 # sorting them by scaffold name
 lr_kmers <- lr_kmers[order(lr_kmers$len, decreasing = T),]
 
 # to John's assembly
-j_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers.johnassembly.tsv", header = T, sep = '\t', stringsAsFactors = F)
-j_contig_lengths <- read.table('data/Pacbio/6_kmermapping/johnassembly_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
+j_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers.johnassembly.tsv", header = T, sep = '\t', stringsAsFactors = F)
+j_contig_lengths <- read.table('data/L-X-A-kmers/mapping/johnassembly_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
 j_kmers <- merge(j_kmers, j_contig_lengths)
 # sorting them by scaffold name
 j_kmers <- j_kmers[order(j_kmers$len, decreasing = T),]
 
-jlc_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers.Lcandidates.tsv", header = T, sep = '\t', stringsAsFactors = F)
-jlc_contig_lengths <- read.table('data/Pacbio/6_kmermapping/Lcandidate_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
+jlc_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers.Lcandidates.tsv", header = T, sep = '\t', stringsAsFactors = F)
+jlc_contig_lengths <- read.table('data/L-X-A-kmers/mapping/Lcandidate_contig_lengths.tsv', sep = '\t', header = F, stringsAsFactors = F, col.names = c('id', 'len'))
 jlc_kmers <- merge(jlc_kmers, jlc_contig_lengths)
 # sorting them by scaffold name
 jlc_kmers <- jlc_kmers[order(jlc_kmers$len, decreasing = T),]

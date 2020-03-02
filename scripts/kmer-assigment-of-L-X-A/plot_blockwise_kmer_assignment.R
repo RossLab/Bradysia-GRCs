@@ -1,9 +1,9 @@
 
-sr_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
 sr_kmers$len <- sapply(strsplit(sr_kmers$id, '_'), function(x){ as.integer(x[4]) } )
 
-lr_kmer_blocks <- read.table('data/Pacbio/6_kmermapping/racon6pe_inspected_scfs_kmer_blocks.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
-sr_kmer_blocks <- read.table('data/Pacbio/6_kmermapping/illumina_inspected_scfs_kmer_blocks.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
+lr_kmer_blocks <- read.table('data/L-X-A-kmers/mapping/racon6pe_inspected_scfs_kmer_blocks.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
+sr_kmer_blocks <- read.table('data/L-X-A-kmers/mapping/illumina_inspected_scfs_kmer_blocks.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
 
 get_kmers_out <- function(x, type, gap){ c(sr_kmer_blocks[sr_kmer_blocks$scf == x, type], rep(NA, gap)) }
 investigated_scfs = unique(sr_kmer_blocks$scf)
@@ -46,7 +46,7 @@ hist(lr_kmer_blocks[lr_kmer_blocks$scf == "ctg33", 'A'], breaks = 60, col = 'gre
 hist(lr_kmer_blocks[lr_kmer_blocks$scf == "ctg33", 'X'], breaks = 60, add = T, col = 'red')
 hist(lr_kmer_blocks[lr_kmer_blocks$scf == "ctg33", 'L'], breaks = 20, add = T, col = 'yellow')
 
-weird_illumina_kmer_blocks <- read.table('data/Pacbio/6_kmermapping/table_of_mapped_kmers_NODE_99_length_112107.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
+weird_illumina_kmer_blocks <- read.table('data/L-X-A-kmers/mapping/table_of_mapped_kmers_NODE_99_length_112107.tsv', col.names = c('scf', 'from', 'to', 'L', 'X', 'A'), stringsAsFactors = F)
 
 get_kmers_out <- function(x, type, gap){ c(weird_illumina_kmer_blocks[weird_illumina_kmer_blocks$scf == x, type], rep(NA, gap)) }
 investigated_scfs = unique(weird_illumina_kmer_blocks$scf)

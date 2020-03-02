@@ -1,6 +1,6 @@
 
 # mapped kmers
-sr_kmers <- read.table("data/Pacbio/6_kmermapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
 sr_kmers$len <- sapply(strsplit(sr_kmers$id, '_'), function(x){ as.integer(x[4]) } )
 sr_kmers$kmer_naive <- apply(sr_kmers[,c(2,3,4)], 1, function(x){ c('L', 'X', 'A')[which.max(x)] })
 sr_kmers$score <- apply(sr_kmers[,c(2,3,4)], 1, function(x){ max(x) / sum(x) })
