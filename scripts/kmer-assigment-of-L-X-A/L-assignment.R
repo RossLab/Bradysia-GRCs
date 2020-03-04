@@ -1,57 +1,48 @@
 
 # mapped kmers
 sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
-sr_kmers$len <- sapply(strsplit(sr_kmers$id, '_'), function(x){ as.integer(x[4]) } )
-sr_kmers$kmer_naive <- apply(sr_kmers[,c(2,3,4)], 1, function(x){ c('L', 'X', 'A')[which.max(x)] })
-sr_kmers$score <- apply(sr_kmers[,c(2,3,4)], 1, function(x){ max(x) / sum(x) })
+colnames(sr_kmers)[1] <- "ID"
 
-coverage_tab <- read.table('data/highcov_germ.tsv', stringsAsFactors = F)
+coverage_tab <- read.table('data/table.covdiff.germ.soma.txt', stringsAsFactors = F, header = T)
+coverage_tab <- coverage_tab[coverage_tab$ID != "*",]
+colnames(coverage_tab)[2] <- 'len'
 
-# head(coverage_tab)
-colnames(sr_kmers)[1] <- "name"
+scf_to_add <- coverage_tab$ID[!coverage_tab$ID %in% sr_kmers$ID]
+number_to_add <- length(scf_to_add)
+sr_kmers <- rbind(sr_kmers, data.frame(ID = scf_to_add,
+                                       L = rep(0, number_to_add),
+                                       X = rep(0, number_to_add),
+                                       A = rep(0, number_to_add)))
 
 overlap_tab <- merge(coverage_tab, sr_kmers)
+# row.names(overlap_tab) <- overlap_tab$ID
 
-# the total 11 contigs coverage-wise L that are non-L by kmers
-cov_yes_kmer_no <- overlap_tab[overlap_tab$kmer_naive == 'A',]
-cov_yes_no_kmers_mapped <- coverage_tab[!coverage_tab$name %in% overlap_tab$name,]
+overlap_tab$kmer_naive <- apply(overlap_tab[,c(2,3,4)], 1, function(x){ c('L', 'X', 'A')[which.max(x)] })
+overlap_tab$score <- apply(overlap_tab[,c(2,3,4)], 1, function(x){ max(x) / sum(x) })
+overlap_tab$AX <- overlap_tab$A + overlap_tab$X
+overlap_tab$L_score <- overlap_tab$L / overlap_tab$len
+overlap_tab$AX_score <- overlap_tab$AX / overlap_tab$len
 
-# sum(c(cov_yes_kmer_no$len, cov_yes_no_kmers_mapped$len))
-# 23775 nucleodites, not bad. Not bad at all. Given all this, it's quite clear that these will be sequences found both on L and A
+overlap_tab <- overlap_tab[order(overlap_tab$len, decreasing = T),]
+write.table(overlap_tab, 'data/scaffold_assignment_tab_full.tsv', quote = F, sep = "\t", row.names = F)
 
-# head(sr_kmers[sr_kmers$score < 0.9,])
-# 'NODE_99_length_112107_cov_44.232839' is chimera
+L_kmer_candidates <- overlap_tab[overlap_tab$L_score > 0.8, c('ID', 'len', 'L_score', 'logdif2')]
+coverage_candidates <- overlap_tab[overlap_tab$logdif2 > 2, c('ID', 'len', 'L_score', 'logdif2')]
 
-sr_kmers$AX <- sr_kmers$A + sr_kmers$X
-sr_kmers$L_score <- sr_kmers$L / sr_kmers$len
-sr_kmers$AX_score <- sr_kmers$AX / sr_kmers$len
-# hist(sr_kmers$L_score)
-# hist(sr_kmers$AX_score)
-
-# library(hexbin)
-# # Create hexbin object and plot
-# h <- hexbin(data.frame(sr_kmers$L_score, sr_kmers$AX_score))
-# plot(h)
-
-L_kmer_candidates <- sr_kmers[sr_kmers$L_score > 0.8, c('name', 'L', 'len', 'L_score')]
-
-# nrow(L_kmer_candidates)
-# sum(L_kmer_candidates$len)
-
-shared_candidates <- merge(coverage_tab, L_kmer_candidates)
-kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$name %in% coverage_tab$name,]
-coverage_specific_candidates <- coverage_tab[!coverage_tab$name %in% L_kmer_candidates$name,]
+shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
+kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
+coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
 
 "both [Mbp]"
 sum(shared_candidates$len) / 1e6
 "kmers only [Mbp]"
 sum(kmer_specific_candidates$len) / 1e6
 "coverage only [Mbp]"
-sum(coverage_specific_candidates$seqlen) / 1e6
+sum(coverage_specific_candidates$len) / 1e6
 
 shared_candidates <- shared_candidates[order(shared_candidates$len, decreasing = T),]
 kmer_specific_candidates <- kmer_specific_candidates[order(kmer_specific_candidates$len, decreasing = T),]
-coverage_specific_candidates <- coverage_specific_candidates[order(coverage_specific_candidates$seqlen, decreasing = T),]
+coverage_specific_candidates <- coverage_specific_candidates[order(coverage_specific_candidates$len, decreasing = T),]
 
 write.table(shared_candidates[,'name'], file = "data/L-candidates-both.tsv",
             quote = F, sep = "\t", row.names = F, col.names = F)
@@ -59,23 +50,3 @@ write.table(kmer_specific_candidates[,'name'], file = "data/L-candidates-kmers-o
             quote = F, sep = "\t", row.names = F, col.names = F)
 write.table(coverage_specific_candidates[,'name'], file = "data/L-candidates-cov-only.tsv",
             quote = F, sep = "\t", row.names = F, col.names = F)
-
-#### try to reconsider the normalization using number of UPPERCASE nucleotides
-#
-# scaffold_lengths <- read.table('data/genome/softmasking_per_scf.tsv', stringsAsFactors = F, header = T)
-# scaffold_lengths[scaffold_lengths$name == 'NODE_60',]
-#
-# sr_kmers$name <- sapply(sr_kmers$name, function(scf){paste(unlist(strsplit(scf, "_"))[c(1,2)], collapse = "_")})
-#
-# srss_kmers = merge(sr_kmers, scaffold_lengths)
-#
-# sr_kmers$L_smscore <- sr_kmers$L / (srss_kmers$seqlen - srss_kmers$masked)
-# sr_kmers$AX_smscore <- sr_kmers$AX / (srss_kmers$seqlen - srss_kmers$masked)
-#
-# h <- hexbin(data.frame(sr_kmers$L_smscore, sr_kmers$AX_smscore))
-# plot(h)
-#
-# plot(sr_kmers$AX_smscore ~ sr_kmers$L_smscore, xlim = c(0, 3), ylim = c(0, 3))
-
-# THIS IS A MESS
-# because plenty of kmers are actually mapping on the softmasked positions and lead to nenormous mess up
