@@ -154,11 +154,11 @@ We want to be conservative therefore we use a combined information of read mappi
 The input for the assignment is
 
 ```
-data/highcov_germ.tsv # coverage table
+data/table.covdiff.germ.soma.txt # coverage table
 data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv # mapped kmers table
 ```
 
-and it is done in [scripts/kmer-assigment-of-L-X-A/L-assignment.R](scripts/kmer-assigment-of-L-X-A/L-assignment.R) script.
+and it is done in [scripts/kmer-assigment-of-L-X-A/L-assignment.R](scripts/kmer-assigment-of-L-X-A/L-assignment.R) script. Generates `data/L-candidates-*.tsv` files and `scaffold_assignment_tab_full.tsv` with all the decisionmakeing metadata.
 
 #### Option 3 - matching the kmers to long reads
 

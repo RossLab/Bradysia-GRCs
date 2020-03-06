@@ -18,6 +18,23 @@ png('figures/coverage_kmers_density_log.png')
   plot(h, xlab = "L score", ylab = "log2 coverage difference", main = 'log density of coverage and kmer method')
 dev.off()
 
+L_kmer_candidates <- overlap_tab[overlap_tab$L_score > 0.8, c('ID', 'len', 'L_score', 'logdif2')]
+coverage_candidates <- overlap_tab[overlap_tab$logdif2 > 2, c('ID', 'len', 'L_score', 'logdif2')]
+
+shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
+kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
+coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
+
+sum(kmer_specific_candidates[kmer_specific_candidates$len > 50000, 'len'])
+sum(kmer_specific_candidates[kmer_specific_candidates$len > 10000, 'len'])
+
+sum(coverage_specific_candidates[coverage_specific_candidates$len > 50000, 'len'])
+sum(coverage_specific_candidates[coverage_specific_candidates$len > 10000, 'len'])
+
+row.names(overlap_tab) <- overlap_tab$ID
+overlap_tab[coverage_specific_candidates[coverage_specific_candidates$len > 50000, 'ID'],]
+head(overlap_tab[kmer_specific_candidates[kmer_specific_candidates$len > 50000, 'ID'],], 10)
+
 # TESTING THE COVERAGE RATIO IDEA, it's kind of messy and it's hard to incorporate the density there explicitly
 # overlap_tab$log2diff_kmer_ratio <- log2(overlap_tab$L / (overlap_tab$A + overlap_tab$X) * (overlap_tab$L_score + overlap_tab$AX_score))
 # overlap_tab$log2diff_kmer_ratio[is.infinite(overlap_tab$log2diff_kmer_ratio)] <- 20
