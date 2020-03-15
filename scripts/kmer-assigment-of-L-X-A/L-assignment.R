@@ -45,7 +45,17 @@ kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverag
 coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
 
 "table of assignments [Mbp]"
-sapply(c('L', 'Lk', 'Lc', 'Lp', 'AX', 'AXp'), function(x){ sum(overlap_tab[overlap_tab$assignments == x, 'len']) / 1e6 } )
+categories <- c('L', 'Lk', 'Lc', 'Lp', 'AX', 'AXp')
+sizes <- round(sapply(categories, function(x){ sum(overlap_tab[overlap_tab$assignments == x, 'len']) / 1e6 } ), 1)
+
+cat(paste0('|    ', paste(categories, collapse = '    |    '), '    |\n'))
+cat(paste0('| ---', paste(sapply(categories, function(x){ paste(rep("-", nchar(x)), collapse = "") }), collapse = '--- | ---'), '--- |\n'))
+cat(paste0('|', paste(sapply(sizes, function(x){ paste(c(" ", x, rep(" ", 8 - nchar(x))), collapse = "") }), collapse = '| '), ' |\n'))
+
+# | First Header  | Second Header |
+# | ------------- | ------------- |
+# | Content Cell  | Content Cell  |
+# | Content Cell  | Content Cell  |
 
 # "all putative L [Mbp]"
 # sum(overlap_tab[overlap_tab$assignments %in% c('L', 'Lk', 'Lc', 'Lp'), 'len']) / 1e6
