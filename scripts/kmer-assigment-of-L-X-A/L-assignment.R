@@ -24,21 +24,39 @@ overlap_tab$L_score <- overlap_tab$L / overlap_tab$len
 overlap_tab$AX_score <- overlap_tab$AX / overlap_tab$len
 
 overlap_tab <- overlap_tab[order(overlap_tab$len, decreasing = T),]
+
+L_assignment = overlap_tab$L_score > 0.8
+AX_assignment = overlap_tab$AX_score > 0.5
+cov_assignment = overlap_tab$logdif2 > 2
+
+overlap_tab$assignments <- apply(overlap_tab[,c('L_score','AX_score')], 1, function(x){ c('Lp', 'AXp')[which.max(x)] })
+overlap_tab$assignments[L_assignment & cov_assignment] <- 'L'
+overlap_tab$assignments[L_assignment & !cov_assignment] <- 'Lk'
+overlap_tab$assignments[!L_assignment & cov_assignment] <- 'Lc'
+overlap_tab$assignments[AX_assignment] <- 'AX'
+
 write.table(overlap_tab, 'data/scaffold_assignment_tab_full.tsv', quote = F, sep = "\t", row.names = F)
 
-L_kmer_candidates <- overlap_tab[overlap_tab$L_score > 0.8, c('ID', 'len', 'L_score', 'logdif2')]
-coverage_candidates <- overlap_tab[overlap_tab$logdif2 > 2, c('ID', 'len', 'L_score', 'logdif2')]
+L_kmer_candidates <- overlap_tab[L_assignment, c('ID', 'len', 'L_score', 'logdif2')]
+coverage_candidates <- overlap_tab[cov_assignment, c('ID', 'len', 'L_score', 'logdif2')]
 
 shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
 kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
 coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
 
-"both [Mbp]"
-sum(shared_candidates$len) / 1e6
-"kmers only [Mbp]"
-sum(kmer_specific_candidates$len) / 1e6
-"coverage only [Mbp]"
-sum(coverage_specific_candidates$len) / 1e6
+"table of assignments [Mbp]"
+sapply(c('L', 'Lk', 'Lc', 'Lp', 'AX', 'AXp'), function(x){ sum(overlap_tab[overlap_tab$assignments == x, 'len']) / 1e6 } )
+
+# "all putative L [Mbp]"
+# sum(overlap_tab[overlap_tab$assignments %in% c('L', 'Lk', 'Lc', 'Lp'), 'len']) / 1e6
+# "both [Mbp]"
+# sum(shared_candidates$len) / 1e6
+# "kmers only [Mbp]"
+# sum(kmer_specific_candidates$len) / 1e6
+# "coverage only [Mbp]"
+# sum(coverage_specific_candidates$len) / 1e6
+# "all putative A [Mbp]"
+
 
 shared_candidates <- shared_candidates[order(shared_candidates$len, decreasing = T),]
 kmer_specific_candidates <- kmer_specific_candidates[order(kmer_specific_candidates$len, decreasing = T),]
