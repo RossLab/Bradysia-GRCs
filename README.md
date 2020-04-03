@@ -15,9 +15,8 @@ Notes:
 
   - [Code](https://github.com/RossLab/Sciara-L-chromosome/blob/master/scripts/kmer-assigment-of-L-X-A/L-assignment.R#L28-L30) that **decides about assigments** what is L / Lc / Lk / Lp / AX / AXp (we can latter one separate A and X using either male coverage or the reference genome). In total the assigment fractions now are (Mbp):
 
-  |    L    |    Lk    |    Lc    |    Lp    |    AX    |    AXp    |
-  | ------- | -------- | -------- | -------- | -------- | --------- |
-  | 129.4   |  30.9    |  4.4     |  6       |  217.6   |  9.4      |
-
+  |    L    |    Lc    |    A    |    Ac    |    X    |    Xc    |    NA    |
+  | ------- | -------- | ------- | -------- | ------- | -------- | -------- |
+  | 154.1   |  6.8     |  162.4  |  9       |  52.9   |  2.4     |  10.1    |
 
   - [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)

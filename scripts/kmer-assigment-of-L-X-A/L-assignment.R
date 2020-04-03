@@ -19,33 +19,41 @@ overlap_tab <- merge(coverage_tab, sr_kmers)
 
 overlap_tab$kmer_naive <- apply(overlap_tab[,c('L','X','A')], 1, function(x){ c('L', 'X', 'A')[which.max(x)] })
 overlap_tab$score <- apply(overlap_tab[,c('L','X','A')], 1, function(x){ max(x) / sum(x) })
-overlap_tab$AX <- overlap_tab$A + overlap_tab$X
 overlap_tab$L_score <- overlap_tab$L / overlap_tab$len
-overlap_tab$AX_score <- overlap_tab$AX / overlap_tab$len
+overlap_tab$A_score <- overlap_tab$A / overlap_tab$len
+overlap_tab$X_score <- overlap_tab$X / overlap_tab$len
 
 overlap_tab <- overlap_tab[order(overlap_tab$len, decreasing = T),]
 
-L_assignment = overlap_tab$L_score > 0.8
-AX_assignment = overlap_tab$AX_score > 0.5
-cov_assignment = overlap_tab$logdif2 > 2
+# overlap_tab$logdif2
+L_assignment = overlap_tab$L_score > 0.8 & overlap_tab$logdif2 > 0.5
+Lc_assignment = (overlap_tab$L_score > 0.8 | overlap_tab$logdif2 > 0.5) & !L_assignment
+A_assignment = overlap_tab$A_score > 0.4 & overlap_tab$logdif2 < -0.1 & overlap_tab$logdif2 > -1
+Ac_assignment = (overlap_tab$A_score > 0.4 | (overlap_tab$logdif2 < -0.1 & overlap_tab$logdif2 > -1)) & !A_assignment
+X_assignment = overlap_tab$X_score > 0.4 & overlap_tab$logdif2 < 0.5 & overlap_tab$logdif2 > -0.1
+Xc_assignment = (overlap_tab$X_score > 0.4 | (overlap_tab$logdif2 < 0.5 & overlap_tab$logdif2 > -0.1)) & !X_assignment
 
-overlap_tab$assignments <- apply(overlap_tab[,c('L_score','AX_score')], 1, function(x){ c('Lp', 'AXp')[which.max(x)] })
-overlap_tab$assignments[L_assignment & cov_assignment] <- 'L'
-overlap_tab$assignments[L_assignment & !cov_assignment] <- 'Lk'
-overlap_tab$assignments[!L_assignment & cov_assignment] <- 'Lc'
-overlap_tab$assignments[AX_assignment] <- 'AX'
+categories <- c('L', 'Lc', 'A', 'Ac', 'X', 'Xc', 'NA')
+overlap_tab$assignments <- 'NA'
+overlap_tab$assignments[L_assignment] <- 'L'
+overlap_tab$assignments[Lc_assignment] <- 'Lc'
+overlap_tab$assignments[X_assignment] <- 'X'
+overlap_tab$assignments[Xc_assignment] <- 'Xc'
+overlap_tab$assignments[A_assignment] <- 'A'
+overlap_tab$assignments[Ac_assignment] <- 'Ac'
+overlap_tab$assignments[(Ac_assignment + Xc_assignment + Lc_assignment) > 1] <- 'NA'
 
 write.table(overlap_tab, 'data/scaffold_assignment_tab_full.tsv', quote = F, sep = "\t", row.names = F)
 
-L_kmer_candidates <- overlap_tab[L_assignment, c('ID', 'len', 'L_score', 'logdif2')]
-coverage_candidates <- overlap_tab[cov_assignment, c('ID', 'len', 'L_score', 'logdif2')]
-
-shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
-kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
-coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
+# L_kmer_candidates <- overlap_tab[L_assignment, c('ID', 'len', 'L_score', 'logdif2')]
+# coverage_candidates <- overlap_tab[cov_assignment, c('ID', 'len', 'L_score', 'logdif2')]
+#
+# shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
+# kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
+# coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
 
 "table of assignments [Mbp]"
-categories <- c('L', 'Lk', 'Lc', 'Lp', 'AX', 'AXp')
+
 sizes <- round(sapply(categories, function(x){ sum(overlap_tab[overlap_tab$assignments == x, 'len']) / 1e6 } ), 1)
 
 cat(paste0('|    ', paste(categories, collapse = '    |    '), '    |\n'))
@@ -67,14 +75,13 @@ cat(paste0('|', paste(sapply(sizes, function(x){ paste(c(" ", x, rep(" ", 8 - nc
 # sum(coverage_specific_candidates$len) / 1e6
 # "all putative A [Mbp]"
 
-
-shared_candidates <- shared_candidates[order(shared_candidates$len, decreasing = T),]
-kmer_specific_candidates <- kmer_specific_candidates[order(kmer_specific_candidates$len, decreasing = T),]
-coverage_specific_candidates <- coverage_specific_candidates[order(coverage_specific_candidates$len, decreasing = T),]
-
-write.table(shared_candidates[,'ID'], file = "data/L-candidates-both.tsv",
-            quote = F, sep = "\t", row.names = F, col.names = F)
-write.table(kmer_specific_candidates[,'ID'], file = "data/L-candidates-kmers-only.tsv",
-            quote = F, sep = "\t", row.names = F, col.names = F)
-write.table(coverage_specific_candidates[,'ID'], file = "data/L-candidates-cov-only.tsv",
-            quote = F, sep = "\t", row.names = F, col.names = F)
+# shared_candidates <- shared_candidates[order(shared_candidates$len, decreasing = T),]
+# kmer_specific_candidates <- kmer_specific_candidates[order(kmer_specific_candidates$len, decreasing = T),]
+# coverage_specific_candidates <- coverage_specific_candidates[order(coverage_specific_candidates$len, decreasing = T),]
+#
+# write.table(shared_candidates[,'ID'], file = "data/L-candidates-both.tsv",
+#             quote = F, sep = "\t", row.names = F, col.names = F)
+# write.table(kmer_specific_candidates[,'ID'], file = "data/L-candidates-kmers-only.tsv",
+#             quote = F, sep = "\t", row.names = F, col.names = F)
+# write.table(coverage_specific_candidates[,'ID'], file = "data/L-candidates-cov-only.tsv",
+#             quote = F, sep = "\t", row.names = F, col.names = F)
