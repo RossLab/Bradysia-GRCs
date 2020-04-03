@@ -7,6 +7,9 @@ coverage_tab <- read.table('data/table.covdiff.germ.soma.txt', stringsAsFactors 
 coverage_tab <- coverage_tab[coverage_tab$ID != "*",]
 colnames(coverage_tab)[2] <- 'len'
 
+coverage_tab$scf <- unlist(lapply(strsplit(coverage_tab$ID, "_"), function(x){ paste(x[1:2], collapse = "_") } ))
+coverage_tab <- coverage_tab[,c(6, 1:5)]
+
 scf_to_add <- coverage_tab$ID[!coverage_tab$ID %in% sr_kmers$ID]
 number_to_add <- length(scf_to_add)
 sr_kmers <- rbind(sr_kmers, data.frame(ID = scf_to_add,
