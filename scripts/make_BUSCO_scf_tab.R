@@ -28,9 +28,7 @@ BUSCO_full_tab$assignment <- scf_assignment_tab[scfs,'assignments']
 BUSCO_full_tab$assignment_group <- busco_assignment_groups[BUSCO_full_tab$busco_id]
 
 png('figures/BUSCO_scores.png')
-  hist(BUSCO_full_tab[BUSCO_full_tab$assignment == 'AX', 'score'], breaks = 60, col = 'purple', main = "BUSCO score vs chromosomal assignment", xlab = 'BUSCO score')
-  hist(BUSCO_full_tab[BUSCO_full_tab$assignment == 'L', 'score'], breaks = 30, col = 'yellow', add = T)
-  legend('topright', bty = 'n', pch = 20, c('GRC', 'AX'), col = c('yellow', 'purple'))
+  boxplot(score ~ assignment, data = BUSCO_full_tab, ylab = "BUSCO assignment score")
 dev.off()
 
 output_table <- BUSCO_full_tab[,c('busco_id','scf','length', 'assignment', 'assignment_group','fction')]
