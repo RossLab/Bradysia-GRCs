@@ -4,12 +4,21 @@ Here should be some description in future.
 Notes:
   - Within the repository, **L** is a synonim of **GRC**
 
-### Projects
+### Data
 
-#### Sorting out the Sciara genome to L/X/A using kmers:
+- softmasked genome: `/data/ross/mealybugs/analyses/sciara_coprophila/18_repeat/repeats/Scop_repeatmask/scop.spades2.min1kb.trimmed.fasta.masked`
+- annotation: `/data/ross/mealybugs/analyses/sciara_coprophila/20_braker/braker.gff3`
+
+### Subprojects
+
+#### Sorting out the Sciara genome to L/X/A using kmers
   - [project board](https://github.com/orgs/RossLab/projects/1)
   - [analyses documentation](analyses/kmer-assigment-of-L-X-A.md)
   - [associated scripts](scripts/kmer-assigment-of-L-X-A)
+
+#### Genome wide paralogy
+  - [analyses documentation](analyses/genome_wide_paralogy.md)
+
 
 ### Important places to look at
 
