@@ -8,8 +8,15 @@ from sys import stdout
 parser = argparse.ArgumentParser(description='Given gene2transcript map extract longest transcript per gene from an fa/faa file.')
 parser.add_argument('g2t_map', help='path to gene to transcript map (2 column tsv file)')
 parser.add_argument('transcriptome', help='fasta or faa file (headers must match transcripts in the map)')
+parser.add_argument('-filter_list', help='a list of transcripts we want to filter out', default = '')
 
 args = parser.parse_args()
+
+filter_dict = defaultdict(bool)
+if args.filter_list:
+    with open(args.filter_list, 'r') as filter_list:
+        for line in filter_list:
+            filter_dict[line.rstrip('\n')] = True
 
 transcripts2genes = dict()
 with open(args.g2t_map, 'r') as g2t_file:
@@ -23,6 +30,8 @@ for seq_record in ffile:
     gene = transcripts2genes[seq_record.name]
     genes2transcript_seuqneces[gene].append(seq_record)
 
+filter_list = defaultdict()
+
 # read transcripts
 for gene in genes2transcript_seuqneces.keys():
     transcripts = genes2transcript_seuqneces[gene]
@@ -32,5 +41,7 @@ for gene in genes2transcript_seuqneces.keys():
             lengest = index
         # if lengest != 0:
         #     print(lengest)
+    if filter_dict[transcripts[lengest].name]:
+        continue
     fasta_string = '>' + gene + '\n' + str(transcripts[lengest].upper().seq) + '\n'
     stdout.write(fasta_string)
