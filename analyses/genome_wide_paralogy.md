@@ -33,6 +33,16 @@ qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastn -query $GE
 qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastp -query $PROT -db $PROT -evalue 1e-10 -outfmt 6 -num_threads 16 | ~/generic_genomics/blast_filter.py 5 > data/genome_wide_paralogy/proteins_all_vs_all.blast"
 ```
 
+### Nucleotide divergence of paralogs
+
+We plot a quick and dirty histogram using this [this script](scripts/genome_wide_paralogy/paralog_divergence_historgram.R):
+
+![genome_wide_paralogy](https://user-images.githubusercontent.com/8181573/79567869-d6851e80-80ac-11ea-94bc-73aa3220a07b.png)
+
+The divergence of L-L is (moreless) unimodel around 85% similarity, just like the L-A divergence that is around similar levels, suggesting an indipendent evolution of the two L copies shortly after the duplication.
+
+### Collinearity analysis
+
 ```
 # preparing annotation
 awk '($3 == "mRNA") {
@@ -65,6 +75,10 @@ paste(colinear_tab$scf_1_ch, colinear_tab$scf_2_ch)
 
 There are plenty of LL blocks and several LA blocks. One LX block and no XA blocks. This is another evidence that we assembled the 2 L chromosomes, implying that the two L chomosomes are divergent from each other on nucleotide level but are indeed homologous. Note that although we detect relatively small number of synteny blocks (41 in total), Illumina assembly is very fragmented and hence there must be many more.
 
-There are two things we could do more:
- - adjust this analysis for paralogs between L scaffolds and figure how many synteny breaks are there (how many paralogs are in different orders rather than the same). This will give us an idea about preservation of the order of genes on the two Ls
- - alternatively we could try to redo the analysis using chromosome level asm of Sciara (maybe we can learn something from just remapping our non-L annotation on their assembly using exonerate, pasting together with our L and then rerunning `MCScanX`) 
+The next we try to redo the analysis using chromosome level asm of Sciara (maybe we can learn something from just remapping our non-L annotation on their assembly using exonerate, pasting together with our L and then rerunning `MCScanX`)
+
+### anchoring Illumina genes
+
+We are interested in gene evolution and the Illumina assembly has a substantially better BUSCO score than the PacBio assembly.
+
+
