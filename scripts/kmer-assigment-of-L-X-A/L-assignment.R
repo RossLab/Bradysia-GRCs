@@ -1,6 +1,7 @@
 
 # mapped kmers
-sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+#setwd("/Users/christina/projects/Sciara-L-chromosome/")
+sr_kmers <- read.table("data/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
 colnames(sr_kmers)[1] <- "ID"
 
 coverage_tab <- read.table('data/table.covdiff.germ.soma.txt', stringsAsFactors = F, header = T)
@@ -46,7 +47,8 @@ overlap_tab$assignments[A_assignment] <- 'A'
 overlap_tab$assignments[Ac_assignment] <- 'Ac'
 overlap_tab$assignments[(Ac_assignment + Xc_assignment + Lc_assignment) > 1] <- 'NA'
 
-write.table(overlap_tab, 'data/scaffold_assignment_tab_full.tsv', quote = F, sep = "\t", row.names = F)
+#write.table(overlap_tab, 'data/scaffold_assignment_tab_full.tsv', quote = F, sep = "\t", row.names = F)
+
 
 # L_kmer_candidates <- overlap_tab[L_assignment, c('ID', 'len', 'L_score', 'logdif2')]
 # coverage_candidates <- overlap_tab[cov_assignment, c('ID', 'len', 'L_score', 'logdif2')]
@@ -62,6 +64,12 @@ sizes <- round(sapply(categories, function(x){ sum(overlap_tab[overlap_tab$assig
 cat(paste0('|    ', paste(categories, collapse = '    |    '), '    |\n'))
 cat(paste0('| ---', paste(sapply(categories, function(x){ paste(rep("-", nchar(x)), collapse = "") }), collapse = '--- | ---'), '--- |\n'))
 cat(paste0('|', paste(sapply(sizes, function(x){ paste(c(" ", x, rep(" ", 8 - nchar(x))), collapse = "") }), collapse = '| '), ' |\n'))
+
+
+#I want to make a small plot of how many of each thing we have (i.e. total length)
+
+pal <- c('yellow','yellow', 'green','green', 'red', 'red', 'grey')
+barplot(sizes, ylab = "size (Mb)", xlab='chromosome assignment',col=pal)
 
 # | First Header  | Second Header |
 # | ------------- | ------------- |
