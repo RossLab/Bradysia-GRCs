@@ -1,9 +1,9 @@
 
 #library(tximport)
-setwd("/Users//christina//Dropbox//Sciara//assembly.outputs//all_by_all_blast_spades")
-scf_asn <- read.delim("scaffold_assignment_tab_full.tsv",header=T, stringsAsFactors = F)
-trans_asn <- read.delim("gene.scaffold.map.tsv",header=FALSE, stringsAsFactors = F, col.names = c('gene', 'scf'))
-blast_out <- read.delim("genes_all_vs_all.blast",header=FALSE, stringsAsFactors = F, col.names =c("subject","query","identity","length","mismatch","gapopen","qstart","qend","sstart","send","evalue","bitscore"))
+# setwd("/Users//christina//Dropbox//Sciara//assembly.outputs//all_by_all_blast_spades")
+scf_asn <- read.delim("data/scaffold_assignment_tab_full.tsv", header=T, stringsAsFactors = F)
+trans_asn <- read.delim("data/genome/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
+blast_out <- read.delim("data/genome_wide_paralogy/genes_all_vs_all.blast", header=F, stringsAsFactors = F, col.names =c("subject","query","identity","length","mismatch","gapopen","qstart","qend","sstart","send","evalue","bitscore"))
 blast_out <- blast_out[blast_out$subject != blast_out$query,]
 
 row.names(scf_asn) <- scf_asn$scf
@@ -30,6 +30,7 @@ identities_of_AXs <- blast_out[paste0(blast_out$subject_asn, blast_out$query_asn
 
 pal <- c('blue', 'yellow', 'green', 'orange', 'purple', 'red')
 
+png('figures/paralog_divergence_hist.png')
 hist(blast_out$identity, breaks = 100, main = 'nt identity of genome-wide paralogs', xlab = 'Identity [ % ]')
 hist(identities_of_LAs, col = 'blue', add = T, breaks = 100)
 hist(identities_of_LLs, col = 'yellow', add = T, breaks = 100)
@@ -39,3 +40,4 @@ hist(identities_of_AXs, col = 'purple', add = T, breaks = 100)
 hist(identities_of_XXs, col = 'red', add = T, breaks = 100)
 
 legend('topleft', bty = 'n', c('all', 'LA', 'LL', 'AA', 'LX', 'AX', 'XX'), col = c('black', pal), pch = 20)
+dev.off()
