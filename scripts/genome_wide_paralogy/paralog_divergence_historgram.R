@@ -3,7 +3,7 @@
 # setwd("/Users//christina//Dropbox//Sciara//assembly.outputs//all_by_all_blast_spades")
 scf_asn <- read.delim("data/scaffold_assignment_tab_full.tsv", header=T, stringsAsFactors = F)
 trans_asn <- read.delim("data/genome/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
-blast_out <- read.delim("data/genome_wide_paralogy/genes_all_vs_all.blast", header=F, stringsAsFactors = F, col.names =c("subject","query","identity","length","mismatch","gapopen","qstart","qend","sstart","send","evalue","bitscore"))
+blast_out <- read.delim("data/genome_wide_paralogy/genes_all_vs_all.blast", header=F, stringsAsFactors = F, col.names =c("query","subject","identity","length","mismatch","gapopen","qstart","qend","sstart","send","evalue","bitscore"))
 blast_out <- blast_out[blast_out$subject != blast_out$query,]
 
 row.names(scf_asn) <- scf_asn$scf

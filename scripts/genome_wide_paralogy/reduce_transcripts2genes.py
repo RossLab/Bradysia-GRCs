@@ -9,14 +9,22 @@ parser = argparse.ArgumentParser(description='Given gene2transcript map extract 
 parser.add_argument('g2t_map', help='path to gene to transcript map (2 column tsv file)')
 parser.add_argument('transcriptome', help='fasta or faa file (headers must match transcripts in the map)')
 parser.add_argument('-filter_list', help='a list of transcripts we want to filter out', default = '')
+parser.add_argument('-keep_list', help='a list of transcripts to keep, filter_list has a priority over keep list [datault: all]', default = '')
 
 args = parser.parse_args()
 
 filter_dict = defaultdict(bool)
+keep_dict = defaultdict(bool)
+
 if args.filter_list:
     with open(args.filter_list, 'r') as filter_list:
         for line in filter_list:
             filter_dict[line.rstrip('\n')] = True
+
+if args.keep_list:
+    with open(args.keep_list, 'r') as keep_list:
+        for line in keep_list:
+            keep_dict[line.rstrip('\n')] = True
 
 transcripts2genes = dict()
 with open(args.g2t_map, 'r') as g2t_file:
@@ -42,6 +50,8 @@ for gene in genes2transcript_seuqneces.keys():
         # if lengest != 0:
         #     print(lengest)
     if filter_dict[transcripts[lengest].name]:
+        continue
+    if not (keep_dict[transcripts[lengest].name] and args.keep_list):
         continue
     fasta_string = '>' + gene + '\n' + str(transcripts[lengest].upper().seq) + '\n'
     stdout.write(fasta_string)
