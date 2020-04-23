@@ -51,7 +51,7 @@ for gene in genes2transcript_seuqneces.keys():
         #     print(lengest)
     if filter_dict[transcripts[lengest].name]:
         continue
-    if not (keep_dict[transcripts[lengest].name] and args.keep_list):
+    if not (keep_dict[gene] and args.keep_list):
         continue
     fasta_string = '>' + gene + '\n' + str(transcripts[lengest].upper().seq) + '\n'
     stdout.write(fasta_string)

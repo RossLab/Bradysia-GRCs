@@ -88,14 +88,47 @@ We can either try to get the annotation of the genome using something like [exon
 Extract genes that are AX-linked or L-linked. The AX-linked genes will be anchored on the reference assembly while the L-linked genes will be anchored on the PacBio assembly.
 
 ```
-making lists
+mkdir data/genome/decomposed
+Rscript scripts/genome_wide_paralogy/generating_lists_of_genes.R
 ```
 
+Getting the genes associated
+
 ```
-python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list TODO_L > data/genome/transcripts_L.fasta
-python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list TODO_X > data/genome/transcripts_AX.fasta
-python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list TODO_A >> data/genome/transcripts_AX.fasta
+python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list data/genome/decomposed/L_genes.list > data/genome/decomposed/genes_L.fasta
+python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list data/genome/decomposed/X_genes.list > data/genome/decomposed/genes_X.fasta
+python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/transcripts2genes.map data/genome/transcripts.fasta -keep_list data/genome/decomposed/A_genes.list > data/genome/decomposed/genes_A.fasta
 ```
+
+##### Blast
+
+GLR genes to PacBio assmebly
+
+```
+L_GENES=data/genome/decomposed/genes_L.fasta
+PB_asm=data/genome/pacbio_assembly.fasta
+makeblastdb -in $PB_asm -dbtype nucl
+qsub -o logs -e logs -cwd -N Lblast -V -pe smp64 16 -b yes "blastn -query $L_GENES -db $PB_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/L_genes2PB_asm.blast"
+```
+
+Non-L genes to the reference assembly
+
+```
+REF_asm=data/genome/ref/final_canu.fasta
+mkdir -p data/genome/ref/
+# the line bellow should be replaced by DL command once the asm will be online
+ln -s /data/ross/mealybugs/analyses/pulling_sciara/Canu-assembly-Bcop_v1.0/Bcop_v1_assembly/final_canu.fasta $REF_asm
+AX_GENES=data/genome/decomposed/genes_AX.fasta
+cat data/genome/decomposed/genes_X.fasta data/genome/decomposed/genes_A.fasta > $AX_GENES
+
+makeblastdb -in $REF_asm -dbtype nucl
+
+qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastp -query $AX_GENES -db $REF_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2ref_asm.blast"
+```
+
+Now we need to do a magic. Generating gtf files from the blast results. Then reuse the all vs all protein blast and rerun MCScanX.
+
+##### Exonerate
 
 ```
 exonerate
