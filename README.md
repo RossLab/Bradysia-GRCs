@@ -14,6 +14,8 @@ Later paths should be replaced by URLs in public reposutories.
 - pacbio genome: `/data/ross/mealybugs/analyses/sciara_coprophila/Pacbio/4_racon2_sr/sciara.germ.pb.illumina1.rb.racon6pe.fasta`
 - RNAseq of germ and soma (Males and Females):
 `/data/ross/mealybugs/raw/11791_Ross_Laura/raw_data/20190812/` and Mgerm/body or Fgerm/body directory
+- Illumina raw reads:
+`/data/ross/mealybugs/raw/transfer.genomics.ed.ac.uk/11372_Ross_Laura/raw_data/data_by_date/20180618/all_reads/`
 
 
 ### Subprojects
