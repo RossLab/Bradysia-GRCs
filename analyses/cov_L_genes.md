@@ -1,15 +1,15 @@
-goal: to determine what the coverage of the L chromosome genes are in the Illumina assembly. 
+## goal: to determine what the coverage of the L chromosome genes are in the Illumina assembly. 
 - we want to know if some genes are at half the coverage of others and if so if those are the ones that have paralogs (i.e. if the paralogs have been assembled as two separate things).
 - this will give us an idea of how similar the L chromosomes are to each other. 
 
 
-Approach:
+## Approach:
 - have genome annotation file that calls gene regions in the Illumina assembly.
 - need a file that has testes (germ) reads mapped to genome (already have for unmasked assembly but I think I'll redo with the masked assembly so I know I have the right thing).
 - need to find a tool that uses this info to calculate the coverage for each gene. Can use samtools mpileup (but need to adjust so it only gives you coverage for genes not every base) but I'm going to try bedtools coverage since that says it will give cov with just bam file and gff annotation file (we'll see how this goes).
 - filter out only the L chromosome genes and look at cov histogram
 
-#mapping the testes library to the masked illumina assembly used for the annotation.
+#### mapping the testes library to the masked illumina assembly used for the annotation.
 genome: 19_hisat2/scop.spades2.min1kb.trimmed.fasta.masked
 reads: bamfilter.testes.clc.mar29.scop.testes.vs.scop.clc.sorted.bam.ExIn.fq.gz
 
@@ -47,7 +47,7 @@ def getReference(refFasta, chrom, start, end):
     return refSeq.upper()
 
 
-#trying bedtools to get cov of annotated genes:
+#### trying bedtools to get cov of annotated genes:
 
 the way bedtools coverage works seems to be that you put the file that you want the cov for as -a and the one to take the info from as -b. So in this case the gff3 file should be -a. I've also filtered the gff3 file for just the genes so I only get what I want cov values for (otherwise I'm not sure exactly how big the file would be
 
@@ -69,6 +69,7 @@ qsub -o logs -e logs -cwd -N sort -V -pe smp64 8 -b yes 'bedtools coverage -mean
 
 ok, done, it gave me back the gff file info and the mean cov across each gene (I think it's computed as the coverage at each position averaged over the whole gene. Now going to filter the L contigs out of the tsv file.
 
+#### extracting just the L chromosome genes and making a histogram of their coverage
 In R. 
 scripts/cov_L_chromosome_genes.R
 
