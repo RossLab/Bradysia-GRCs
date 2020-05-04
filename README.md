@@ -22,6 +22,9 @@ Later paths should be replaced by URLs in public reposutories.
 
 This in an incomplete list, only those there are here on GitHub
 
+### Sorting out the Sciara genome to L/X/A using coverage differences between germ and somatic libs
+  - [analyses documentation](scripts/coverage_assignment_notes.md)
+
 #### Sorting out the Sciara genome to L/X/A using kmers
   - [project board](https://github.com/orgs/RossLab/projects/1)
   - [analyses documentation](analyses/kmer-assigment-of-L-X-A.md)
