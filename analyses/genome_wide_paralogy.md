@@ -29,7 +29,7 @@ PROT=data/genome/one_protein_per_gene.faa
 makeblastdb -in $PROT -dbtype prot
 
 # blast all proteins vs all proteins
-qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastn -query $GENES -db $GENES -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/Scop_prot.blast"
+qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastn -query $GENES -db $GENES -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/genes_all_vs_all.blast"
 qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastp -query $PROT -db $PROT -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/proteins_all_vs_all.blast"
 ```
 
@@ -123,10 +123,25 @@ cat data/genome/decomposed/genes_X.fasta data/genome/decomposed/genes_A.fasta > 
 
 makeblastdb -in $REF_asm -dbtype nucl
 
-qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastp -query $AX_GENES -db $REF_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2ref_asm.blast"
+qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastn -query $AX_GENES -db $REF_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2ref_asm.blast"
 ```
 
 Now we need to do a magic. Generating gtf files from the blast results. Then reuse the all vs all protein blast and rerun MCScanX.
+
+```
+mkdir -p data/genome_wide_paralogy/anchored
+```
+
+
+
+```
+data/genome_wide_paralogy/L_genes2PB_asm.blast
+data/genome_wide_paralogy/AX_genes2ref_asm.blast
+```
+
+```
+data/genome_wide_paralogy/anchored
+```
 
 ##### Exonerate
 

@@ -11,6 +11,9 @@ Later paths should be replaced by URLs in public reposutories.
 
 - softmasked genome: `/data/ross/mealybugs/analyses/sciara_coprophila/18_repeat/repeats/Scop_repeatmask/scop.spades2.min1kb.trimmed.fasta.masked`
 - annotation: `/data/ross/mealybugs/analyses/sciara_coprophila/20_braker/braker.gff3`
+- all vs all blasts
+  - genes (nucleotides) `data/genome_wide_paralogy/genes_all_vs_all.blast`
+  - proteins (transcribed genes) `data/genome_wide_paralogy/proteins_all_vs_all.blast`
 
 ### Subprojects
 
