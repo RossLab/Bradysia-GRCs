@@ -20,7 +20,11 @@ python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/tra
 
 now we got a `data/genome/genes.fasta` file we can finally selfblast.
 
-### blasting
+### Genome wide paralogs using reciprocal blast
+
+Using gene and protein sequences we infer the paralogy using reciprocal blast
+
+**blasting**
 
 ```
 GENES=data/genome/genes.fasta
@@ -32,6 +36,18 @@ makeblastdb -in $PROT -dbtype prot
 qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastn -query $GENES -db $GENES -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/genes_all_vs_all.blast"
 qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastp -query $PROT -db $PROT -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/proteins_all_vs_all.blast"
 ```
+
+**blast output processing**
+
+Script `scripts/genome_wide_paralogy/reciprocal_blast.py` takes the blast output and generates a table of gene pairs with reciprocal hits (`_OG_pairs.tsv`) and  orthologous groups (`_OGs.tsv `). The table of pairs also contains % identity and length of alignment (taken from `gene1 gene2` blast record). Also parameter `-s` specifies the sequence similarity that is required to accept a blast alignment.
+
+```
+python3 scripts/genome_wide_paralogy/reciprocal_blast.py -s 60 data/genome_wide_paralogy/genes_all_vs_all.blast data/genome_wide_paralogy/nt_orthology
+# takes a while (actually running it now)
+python3 scripts/genome_wide_paralogy/reciprocal_blast.py -s 60 data/genome_wide_paralogy/proteins_all_vs_all.blast data/genome_wide_paralogy/aa_orthology
+```
+
+The two files have also orthologous group IDs. These are just handles to easier work with the two files, but they don't correspond to each other between runs (if input or parameters change the orthologous group IDs as well).
 
 ### Nucleotide divergence of paralogs
 
