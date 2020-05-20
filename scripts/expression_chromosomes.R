@@ -4,6 +4,7 @@
 library(tximport)
 scf_asn<- read.delim("data/scaffold_assignment_tab_full.tsv",header=T, stringsAsFactors = F)
 trans_asn<- read.delim("data/salmon_rnaseq/transcript.scaffold.map.tsv",header=FALSE, stringsAsFactors = F)
+scf_asn[is.na(scf_asn)] <- "NA"
 
 trans_asn$transcript<- trans_asn$V1
 trans_asn$scf<- trans_asn$V2
@@ -13,8 +14,8 @@ full_asn <- merge(scf_asn, trans_asn)
 transcript_asn <- full_asn[ c(1,2,3,6,11,15,18) ]
 
 #small summary fig of number of transcripts belonging to each chromosome type
-transcripts.per.chromosome<-table(transcript_asn$assignments)
-pal <- c('green','green', 'yellow','yellow', 'red', 'red')
+transcripts.per.chromosome <- table(transcript_asn$assignments)[c(1:4,6:7,5)]
+pal <- c('green','green', 'yellow','yellow','red', 'red', 'grey')
 barplot(transcripts.per.chromosome, col=pal, xlab='chromosome assignment', ylab='number of transcripts')
 
 ##reading in rnaseq data(the paths to this data might need to be changed on qm (it's currently in sciara_coprophila/20_braker/ I think))
@@ -50,8 +51,16 @@ hist(log10(rowMeans(exp_matrix[L_transcripts_quantified,c(1:3,10:12)])), add = T
 
 
 
-hist(log10(rowMeans(exp_matrix[L_transcripts_quantified,4:9])), col = 'yellow')
-hist(log10(rowMeans(exp_matrix[L_transcripts_quantified,c(1:3,10:12)])), add = T, col = 'orange')
+germ <- rowMeans(exp_matrix[L_transcripts_quantified,4:9])
+no_germ <- rowMeans(exp_matrix[L_transcripts_quantified,c(1:3,10:12)])
+
+length(germ)
+length(no_germ)
+
+plot(log10(germ) ~ log10(no_germ), pch = 20, cex = 0.2)
+
+hist(log10(germ), col = 'yellow', probability = T)
+hist(log10(no_germ), add = T, col = rgb(0.5,0.2,0.4, alpha = 0.3), probability = T)
 
 
 mean(rowMeans(exp_matrix[L_transcripts_quantified,]) == 0)
