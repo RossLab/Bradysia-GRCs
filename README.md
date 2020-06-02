@@ -33,9 +33,9 @@ This in an incomplete list, only those there are here on GitHub
   - [associated scripts](scripts/kmer-assigment-of-L-X-A)
 
 #### Using Busco genes to determine the age of the L chromosome
-  - [analyses documentation] (analyses/L_age_from_BUSCO.md)
-  - [associated scripts] (scripts/make_BUSCO_scf_tab.R)
-  - [associated scripts] (scripts/busco.sp.count.hist.R)
+  - [analyses documentation](analyses/L_age_from_BUSCO.md)
+  - [associated scripts](scripts/make_BUSCO_scf_tab.R)
+  - [associated scripts](scripts/busco.sp.count.hist.R)
   
 #### Genome wide paralogy
   - [analyses documentation](analyses/genome_wide_paralogy.md)
