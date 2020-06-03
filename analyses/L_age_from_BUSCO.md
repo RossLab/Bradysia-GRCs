@@ -113,19 +113,19 @@ done
 
 100236at50557.faa
 
+>sylvicola_fuscatus_k141_82067:1-4813
+>penthetria_funebris_k141_62309:15-4604
 >bolitophila_cinerea_k141_24180:6608-9217
 >bolitophila_hybrida_k141_22529:3316-11503
 >catotricha_subobsoleta_k141_662152:1-8407
 >diadocidia_ferruginosa_k141_263832:1-7489
 >gnoriste_bilineata_k141_310207:626-4918
 >lestremia_cinerea_k141_2488:1-5748
->lestremia_cinerea_k141_140664:5866-12832
 >macrocera_vittata_k141_140786:5348-8357
 >mayetiola_destructor_GL503022.1:66351-71763
->penthetria_funebris_k141_62309:15-4604
 >phytosciara_flavipes_k141_241131:2482-8665
 >platyura_marginata_k141_36182:4983-13970
 >sciara_coprophila_NODE_747_length_56249_cov_136.969967:16800-31500
->sylvicola_fuscatus_k141_82067:1-4813
 >symmerus_nobilis_k141_6397:1726-7451
 >trichosia_splendens_k141_426474:1-5856
+>porricondyla_nigripennis_
