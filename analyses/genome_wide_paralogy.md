@@ -33,8 +33,8 @@ PROT=data/genome/one_protein_per_gene.faa
 makeblastdb -in $PROT -dbtype prot
 
 # blast all proteins vs all proteins
-qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastn -query $GENES -db $GENES -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/genes_all_vs_all.blast"
-qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes "blastp -query $PROT -db $PROT -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/proteins_all_vs_all.blast"
+qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes 'blastn -query '"$GENES"' -db '"$GENES"' -evalue 1e-10 -outfmt "6 std qlen slen" -num_threads 16 > data/genome_wide_paralogy/genes_all_vs_all.blast'
+qsub -o logs -e logs -cwd -N selfblast -V -pe smp64 16 -b yes 'blastp -query '"$PROT"' -db '"$PROT"' -evalue 1e-10 -outfmt "6 std qlen slen" -num_threads 16 > data/genome_wide_paralogy/proteins_all_vs_all.blast'
 ```
 
 **blast output processing**
@@ -43,7 +43,7 @@ Script `scripts/genome_wide_paralogy/reciprocal_blast.py` takes the blast output
 
 ```
 python3 scripts/genome_wide_paralogy/reciprocal_blast.py -s 60 data/genome_wide_paralogy/genes_all_vs_all.blast data/genome_wide_paralogy/nt_orthology
-# takes a while (actually running it now)
+# takes a while (actually running it now and also take loads of memory, perhaps I need to do some optimization)
 python3 scripts/genome_wide_paralogy/reciprocal_blast.py -s 60 data/genome_wide_paralogy/proteins_all_vs_all.blast data/genome_wide_paralogy/aa_orthology
 ```
 
