@@ -12,10 +12,10 @@ parser.add_argument('-s', '-similarity', type = float, help='sequence similarity
 parser.add_argument('-gene_coverage', type = float, help='minimal fraction of gene to be covered to accept a link of two genes', default = 0.6)
 
 args = parser.parse_args()
-args.blastfile = 'data/genome_wide_paralogy/genes_all_vs_all.blast'
-args.output_pattern = 'test'
-args.s = 60
-args.gene_coverage = 0.6
+# args.blastfile = 'data/genome_wide_paralogy/genes_all_vs_all.blast'
+# args.output_pattern = 'test'
+# args.s = 60
+# args.gene_coverage = 0.6
 
 class blast_std6_qlen_slen:
     def __init__(self, blast_line):
