@@ -3,17 +3,17 @@ What we have at the moment (I'll add the appropriate code later on at some point
 1. there is a large number of BUSCO genes that are either on the L chromosome or have a paralog on the L chromosome (i.e. in some way associated with L).This is interesting for two reasons:
 - it seems like there are a lot of duplicated BUSCO genes on the L chromosome
 - there are some single copy L BUSCO's. this is unexpected if there are no autosomal paralogs since the BUSCO genes are conserved genes and we wouldn't expect them to be on chromosomes only present in germ tissue/ with a weird chromosome cycle
-2. if you put the BUSCO genes in a phylogeny you see that the L gene copies are either closely related to the Hessian fly (Mayetolia destructor), or is closely related to S. coprophila. 
+2. if you put the BUSCO genes in a phylogeny you see that the L gene copies are either closely related to the Hessian fly (Mayetolia destructor), or is closely related to S. coprophila.
 3. We have some alignments and phylogenies for all BUSCO genes for S. coprophila and also for all other Sciaroidea species we have genomes for (from Noelle's paper). We need to curate these alignments (make some rules about how many species have to be present and maybe trim the alignments at places where fewer than a certain number of species have sequence. Then we want to re-run phylogenies with an outgroup in the phylogeny
 
-## Status: 
+## Status:
 - I've decided to take the species exceria fusca out of the phylogenies because it has a 50% or so BUSCO score. I'm guessing the assembly isn't that good
 
-directory I'm runing code from: 
+directory I'm runing code from:
 `/data/ross/mealybugs/analyses/sciara_coprophila/21_L_age1/`
-directory to put aa seq into: 
+directory to put aa seq into:
 `4_busco_allsp_aa2/`
-list of all busco aa id's from s.cop: s.coprophila.allaa.ID.txt 
+list of all busco aa id's from s.cop: s.coprophila.allaa.ID.txt
 
 ### Moving all busco aa seqs (that have complete copies in S.cop) and all other sciaridae sp (except e. fusca which has only a 50% busco score so we've excluded it) to one directory according to gene:
 ```
@@ -102,7 +102,8 @@ qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 8 -b yes 'iqtree -s 5_mafft2/73
 ```
 try above before moving on...
 
-awk '/^>/ {$0=$1} 1' file.fasta 
+```
+awk '/^>/ {$0=$1} 1' file.fasta
 
 sed '/^>/ s/ .*//' 5_mafft2/73852at50557.fasta > 5_mafft2/73852at50557_2.fasta
 
@@ -129,3 +130,32 @@ done
 >symmerus_nobilis_k141_6397:1726-7451
 >trichosia_splendens_k141_426474:1-5856
 >porricondyla_nigripennis_
+```
+
+### Previous code
+
+I am not sure now where this code should be placed. The first bit seems to belong to point 1. in the overview (exploratory analysis of BUSCO genes). The second part is for sorting MAFFT alignments for phylogeny, not sure if it was used at all, so I keep it here to be sorted out later:
+
+#### Overview of BUSCO genes table
+
+I link the Sciara BUSCO run
+
+```
+ln -s ../../sciara_coprophila/20_braker/busco.sciara.masked.spades.long/run_insecta_odb10/full_table.tsv data/busco.sciara.masked.spades.long_full_table.tsv
+```
+
+table of scaffold assignments
+
+```
+data/scaffold_assignment_tab_full.tsv
+```
+
+And now let's merge them running `Rscript scripts/make_BUSCO_scf_tab.R`. This will generate the table with assigments: [tables/BUSCO_assigned.tsv](https://github.com/RossLab/Sciara-L-chromosome/tables/BUSCO_assigned.tsv).
+
+#### Sorting the MAFFT alignments
+
+For qtree the easiest way to specify an outgroup is to provide it as the first sequence in the fasta. The following script will require biopython (you can install that by pip) and resorts the fasta alignment so the outgroup is always the first (to standard output). If there is no outgroup no sequences are returned.
+
+```
+python3 scripts/Getting_L_age_using_BUSCO/sorting_MAFFT_alignmnets_of_BUSCO_genes.py <mafft.fasta> > <mafft_resorted.fasta>
+```
