@@ -97,7 +97,7 @@ The next we try to redo the analysis using chromosome level asm of Sciara (maybe
 
 We are interested in gene evolution and the Illumina assembly has a substantially better BUSCO score than the PacBio assembly.
 
-We can either try to get the annotation of the genome using something like [exonerate](https://www.ebi.ac.uk/about/vertebrate-genomics/software/exonerate), or directly blast the Illumina genes against PacBio (for L genes) and and the reference genome (for X and A). We could also try to do it on nucleotide level eitehr directly by `nucmer` or `abacas` wrapper.
+We can either try to get the annotation of the genome using something like [exonerate](https://www.ebi.ac.uk/about/vertebrate-genomics/software/exonerate), or directly blast the Illumina genes against PacBio (for L genes) and and the reference genome (for X and A). We could also try to do it on nucleotide level either directly by `nucmer` or `abacas` wrapper.
 
 #### Based on genes
 
@@ -118,7 +118,7 @@ python3 scripts/genome_wide_paralogy/reduce_transcripts2genes.py data/genome/tra
 
 ##### Blast
 
-GLR genes to PacBio assmebly
+GRC genes to PacBio assmebly
 
 ```
 L_GENES=data/genome/decomposed/genes_L.fasta
@@ -142,28 +142,90 @@ makeblastdb -in $REF_asm -dbtype nucl
 qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastn -query $AX_GENES -db $REF_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2ref_asm.blast"
 ```
 
-Now we need to do a magic. Generating gtf files from the blast results. Then reuse the all vs all protein blast and rerun MCScanX.
+Now we need to do a magic. Generating a gtf file from the blast results (`data/genome_wide_paralogy/L_genes2PB_asm.blast`, `data/genome_wide_paralogy/AX_genes2ref_asm.blast`). Then reuse the all vs all protein blast and rerun MCScanX.
+
+The gtf file needs to have 4 columns, scf, gene, from, to. I will use `blast_filter.py` from generic_genomics collection of scripts to get only the best hit per gene.
 
 ```
 mkdir -p data/genome_wide_paralogy/anchored
+ln -s ../proteins_all_vs_all.blast data/genome_wide_paralogy/anchored/Scop_anch_prot.blast
+blast_filter.py data/genome_wide_paralogy/L_genes2PB_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' > data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
+blast_filter.py data/genome_wide_paralogy/AX_genes2ref_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' >> data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
+MCScanX -s 3 -m 100 -a data/genome_wide_paralogy/anchored/Scop_anch_prot
 ```
 
 
 
 ```
-data/genome_wide_paralogy/L_genes2PB_asm.blast
-data/genome_wide_paralogy/AX_genes2ref_asm.blast
+grep "^## " data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_prot_collinearity.tsv
 ```
 
+```{R}
+Sciara_colinearity <- read.table('data/genome_wide_paralogy/Scop_anch_prot_collinearity.tsv', col.names = c('chr1', 'chr2', 'genes', 'score', 'eval'), stringsAsFactors = F )
+
+length(unique(c(Sciara_colinearity$chr1, Sciara_colinearity$chr2)))
+# 319
+table(c(Sciara_colinearity$chr1, Sciara_colinearity$chr2))
+# > PacBio assembly is still too fragmented to see big scale picture
+
+head(Sciara_colinearity)
+scfs_of_ch1_genes = unlist(apply(Sciara_colinearity, 1, function(x){ rep(x[1], as.numeric(x['genes'])) } ))
+scfs_of_ch2_genes = unlist(apply(Sciara_colinearity, 1, function(x){ rep(x[2], as.numeric(x['genes'])) } ))
+
+scaffolds_with_colinear_genes <- sort(table(c(scfs_of_ch1_genes, scfs_of_ch2_genes)))
+scaffolds_with_colinear_genes <- data.frame(scf = names(scaffolds_with_colinear_genes),
+                                            colinear_genes = as.vector(scaffolds_with_colinear_genes), stringsAsFactors = F)
+
+# two_most <- Sciara_colinearity[Sciara_colinearity$chr1 %in% c('ctg171', 'ctg353') |
+#                                Sciara_colinearity$chr2 %in% c('ctg171', 'ctg353')  ,]
+
+hybrid_annotation <- read.table('data/genome_wide_paralogy/anchored/Scop_anch_prot.gff', stringsAsFactors = F, col.names = c('scf', 'gene', 'from', 'to'))
+anchored_genes <- table(hybrid_annotation$scf)
+anchored_genes <- data.frame(scf = names(anchored_genes), genes = as.vector(anchored_genes))
+rownames(anchored_genes) <- anchored_genes$scf
+
+scaffolds_with_colinear_genes$anchored_genes <- anchored_genes[scaffolds_with_colinear_genes$scf, 'genes']
 ```
-data/genome_wide_paralogy/anchored
+
+That's a bit crazy, there are genes that are in multiple collinear blocks that are completelly dominating the signal. These probably transposons that were annotated as genes, we should filter them out before we will carry on with the analysis.
+
+Let's just generate a list of genes that are in collinear blocks, every gene will be there that many times as the number of block it is in
+
+```bash
+grep -v "^#" data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | cut -f 2 > data/genome_wide_paralogy/colinear_genes.list
+grep -v "^#" data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | cut -f 3 >> data/genome_wide_paralogy/colinear_genes.list
 ```
+
+and then in R, let's just make a list of those that are in more than 5 blocks (as the most obvious TE candidates).
+
+```R
+colinear_genes <- read.table('data/genome_wide_paralogy/colinear_genes.list', stringsAsFactors=F)$V1
+in_number_of_blocks <- table(colinear_genes)
+writeLines(names(in_number_of_blocks[in_number_of_blocks > 5]), 'data/genome_wide_paralogy/list_of_TE_candidates_to_filter.tsv')
+```
+
+Now we can use that list to filter out the blast and gff file to get filtered collinearity analysis.
+
+TODO
+-> redo MCScanX without the genes mentioned in `/genome_wide_paralogy/list_of_TE_candidates_to_filter.tsv`
+-> blast A/X to the PB assembly too (and do the analysis with PB fragmentation)
+-> merge collinear blocks with the coverage table (do co-linear blocks have different coverages?)
+-> quantify XA <-> XA, L <-> A and L <-> L (numbers and fractions)
+-> verify that blasting made sense
+
 
 ##### Exonerate
 
+This would be an alternative way how to "blast" genes. It does not run in parallel, so the way is to "divide and conquer" strategy, something like
+
 ```
-exonerate
+exonerate --model protein2genome --target data/genome/ref/final_canu.fasta \
+  --query data/genome/decomposed/genes_AX.fasta --showalignment no \
+  --showcigar no --showvulgar no --bestn 1 --showquerygff no --showtargetgff yes \
+  --targetchunkid $CHUNK --targetchunktotal 50 1> amphio_exonerate_chunk$CHUNK.out
 ```
+
+However, I will try this only if blast won't work.
 
 #### Based on scaffolds
 

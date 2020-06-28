@@ -26,7 +26,7 @@ for sp in odered_species:
     if sp == "sylvicola_fuscatus":
         if len(sequences) > 1:
             #report problem
-            stderr.write('More than one sylvicola fuscatus sequence (skipping this record).\n')
+            stderr.write(args.fastafile + ': More than one sylvicola fuscatus sequence (skipping this record).\n')
             continue
         if len(sequences) == 1:
             outgroup = True
