@@ -204,10 +204,18 @@ in_number_of_blocks <- table(colinear_genes)
 writeLines(names(in_number_of_blocks[in_number_of_blocks > 5]), 'data/genome_wide_paralogy/list_of_TE_candidates_to_filter.tsv')
 ```
 
-Now we can use that list to filter out the blast and gff file to get filtered collinearity analysis.
+Now we can use that list to filter out the blast and gff file to get filtered collinearity analysis and redo the analysis.
+
+```
+mkdir MCScanX data/genome_wide_paralogy/anchored_filtered
+python3 scripts/genome_wide_paralogy/filter_gff_for_colinearity.py > data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.gff
+cp data/genome_wide_paralogy/anchored/*blast data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.blast
+MCScanX data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt
+```
+
+Now that's more like it. We get about 400 collinear blocks mostly A/X <-> L and L <-> L.
 
 TODO
--> redo MCScanX without the genes mentioned in `/genome_wide_paralogy/list_of_TE_candidates_to_filter.tsv`
 -> blast A/X to the PB assembly too (and do the analysis with PB fragmentation)
 -> merge collinear blocks with the coverage table (do co-linear blocks have different coverages?)
 -> quantify XA <-> XA, L <-> A and L <-> L (numbers and fractions)
