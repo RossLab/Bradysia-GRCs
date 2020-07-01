@@ -5,7 +5,7 @@ Here should be some description in future.
 
 Within this repository, **L** is a synonym of **g**erm-line **r**estricted **c**hromosome (**GRC**).
 
-### Data
+### Project data
 
 Later paths should be replaced by URLs in public reposutories.
 
@@ -33,12 +33,18 @@ This in an incomplete list, only those there are here on GitHub
   - associated scripts
    * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
    * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
+  - associated data
+   * [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)
 
 #### Genome wide paralogy
   - [analyses documentation](analyses/genome_wide_paralogy.md)
+  - associated data
+   *
 
 #### Coverage of L genes
   - [analyses documentation](analyses/cov_L_genes.md)
+  - associated data
+   * per gene coverage: `data/gene.cov.braker.annotation.tsv`
 
 #### Expression of L chromosome genes
 
@@ -52,4 +58,3 @@ This in an incomplete list, only those there are here on GitHub
   | ------- | -------- | ------- | -------- | ------- | -------- | -------- |
   | 154.1   |  6.8     |  162.4  |  9       |  52.9   |  2.4     |  10.1    |
 
-  - [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)

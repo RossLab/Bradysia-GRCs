@@ -142,7 +142,9 @@ makeblastdb -in $REF_asm -dbtype nucl
 qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastn -query $AX_GENES -db $REF_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2ref_asm.blast"
 ```
 
-Now we need to do a magic. Generating a gtf file from the blast results (`data/genome_wide_paralogy/L_genes2PB_asm.blast`, `data/genome_wide_paralogy/AX_genes2ref_asm.blast`). Then reuse the all vs all protein blast and rerun MCScanX.
+##### Generating blast-based annotation file
+
+Now we need to do a magic. Generating a gff file from the blast results (`data/genome_wide_paralogy/L_genes2PB_asm.blast`, `data/genome_wide_paralogy/AX_genes2ref_asm.blast`). Then reuse the all vs all protein blast and rerun MCScanX.
 
 The gtf file needs to have 4 columns, scf, gene, from, to. I will use `blast_filter.py` from generic_genomics collection of scripts to get only the best hit per gene.
 
@@ -151,14 +153,21 @@ mkdir -p data/genome_wide_paralogy/anchored
 ln -s ../proteins_all_vs_all.blast data/genome_wide_paralogy/anchored/Scop_anch_prot.blast
 blast_filter.py data/genome_wide_paralogy/L_genes2PB_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' > data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
 blast_filter.py data/genome_wide_paralogy/AX_genes2ref_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' >> data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
+```
+
+##### Collinearity analysis
+
+```
 MCScanX -s 3 -m 100 -a data/genome_wide_paralogy/anchored/Scop_anch_prot
 ```
 
-
+and extract summary table from the full output table
 
 ```
 grep "^## " data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_prot_collinearity.tsv
 ```
+
+now we explore the results in R
 
 ```{R}
 Sciara_colinearity <- read.table('data/genome_wide_paralogy/Scop_anch_prot_collinearity.tsv', col.names = c('chr1', 'chr2', 'genes', 'score', 'eval'), stringsAsFactors = F )
@@ -187,6 +196,8 @@ rownames(anchored_genes) <- anchored_genes$scf
 scaffolds_with_colinear_genes$anchored_genes <- anchored_genes[scaffolds_with_colinear_genes$scf, 'genes']
 ```
 
+##### Filtering out crazy genes
+
 That's a bit crazy, there are genes that are in multiple collinear blocks that are completelly dominating the signal. These probably transposons that were annotated as genes, we should filter them out before we will carry on with the analysis.
 
 Let's just generate a list of genes that are in collinear blocks, every gene will be there that many times as the number of block it is in
@@ -206,42 +217,56 @@ writeLines(names(in_number_of_blocks[in_number_of_blocks > 5]), 'data/genome_wid
 
 Now we can use that list to filter out the blast and gff file to get filtered collinearity analysis and redo the analysis.
 
+We need to find a smarter way to deal with the bloody TEs. Some random advices:
+-> look at the TE domains
+-> match annotated genes with RepBase (why not matched when masking the genome)
+
+TODO
+-> ask on the germ line meeting
+
+##### Redoing the Collinearity analysis without the crazy genes
+
 ```
 mkdir MCScanX data/genome_wide_paralogy/anchored_filtered
 python3 scripts/genome_wide_paralogy/filter_gff_for_colinearity.py > data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.gff
 cp data/genome_wide_paralogy/anchored/*blast data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.blast
 MCScanX data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt
+grep "^## " data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_filt_collinearity.tsv
 ```
 
-Now that's more like it. We get about 400 collinear blocks mostly A/X <-> L and L <-> L.
+and again some exploration in R
+
+```{R}
+collinear_table <- read.table('data/genome_wide_paralogy/Scop_anch_filt_collinearity.tsv', col.names = c('scf1', 'scf2', 'genes', 'score', 'eval'))
+collinear_table[,c('chr1', 'chr2')] <- 'AX'
+collinear_table[grepl('ctg', collinear_table$scf1),'chr1'] <- 'L'
+collinear_table[grepl('ctg', collinear_table$scf2),'chr2'] <- 'L'
+
+table(paste(collinear_table$chr1, collinear_table$chr2))
+# AX L  L L
+#   94   33
+
+sum(collinear_table[collinear_table$chr1 == 'AX', 'genes'])
+# 864
+sum(collinear_table[collinear_table$chr1 == 'L', 'genes'])
+# 242
+```
+
+Now that's more like it. We get 127 collinear blocks mostly A/X <-> L (94) carrying 864 genes and L <-> L (33) carrying 242 genes. Here is a script that will generate a table of genes with detailed information for downstream analses
+
+```
+python3 scripts/genome_wide_paralogy/merge_collinear_genes_with_coverages.py > data/genome_wide_paralogy/collinear_genes_full_table.tsv
+```
+
+##### Evaluation of fragmentation effect
+
+We mapped L to PB assembly and XA to the nearly chromosomal _Sciara_ reference, which is much more continuous than the PB assembly. Of course than detecting collinearity on A/X will be easier simply due to differences in fragmentation (N50). To get an idea about the effect of fragmentation we redo the analysis with PacBio assembly. We expect a dropout of blocks containing X/A genes.
+
+```
+PB_asm=data/genome/pacbio_assembly.fasta
+AX_GENES=data/genome/decomposed/genes_AX.fasta
+qsub -o logs -e logs -cwd -N AXblast -V -pe smp64 16 -b yes "blastn -query $AX_GENES -db $PB_asm -evalue 1e-10 -outfmt 6 -num_threads 16 > data/genome_wide_paralogy/AX_genes2PB_asm.blast"
+```
 
 TODO
--> blast A/X to the PB assembly too (and do the analysis with PB fragmentation)
--> merge collinear blocks with the coverage table (do co-linear blocks have different coverages?)
--> quantify XA <-> XA, L <-> A and L <-> L (numbers and fractions)
--> verify that blasting made sense
-
-
-##### Exonerate
-
-This would be an alternative way how to "blast" genes. It does not run in parallel, so the way is to "divide and conquer" strategy, something like
-
-```
-exonerate --model protein2genome --target data/genome/ref/final_canu.fasta \
-  --query data/genome/decomposed/genes_AX.fasta --showalignment no \
-  --showcigar no --showvulgar no --bestn 1 --showquerygff no --showtargetgff yes \
-  --targetchunkid $CHUNK --targetchunktotal 50 1> amphio_exonerate_chunk$CHUNK.out
-```
-
-However, I will try this only if blast won't work.
-
-#### Based on scaffolds
-
-`abacas.1.3.1.pl` does not really understand multifasta reference. Perhaps it's not the most optimal tool, but I will at least try to feed whole Illumina assembly to longest reference contig (`>contig_232`):
-
-```
-IL_ASM=data/genome/genome.fasta
-abacas.1.3.1.pl -r data/genome/reference_genome_contig_232.fasta -q $IL_ASM -p nucmer
-```
-
-If that will produce some nice easily processable result, we might automatically separate the reference assembly into all scaffolds and do it. We might also map only the non-L scaffolds.
+ -> redo collinearity analysis
