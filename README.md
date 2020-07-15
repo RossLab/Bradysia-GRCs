@@ -19,14 +19,24 @@ Later paths should be replaced by URLs in public reposutories.
 - all vs all blasts
   - genes (nucleotides) `data/genome_wide_paralogy/genes_all_vs_all.blast`
   - proteins (transcribed genes) `data/genome_wide_paralogy/proteins_all_vs_all.blast`
+- repeatmodeler/masker for genome annotation:
+`/data/ross/mealybugs/analyses/Sciara-L-chromosome/data/repeats`
 
 ### Subprojects
 
 This in an incomplete list, only those there are here on GitHub
 
+### Annotation
+  - associated data:
+  * table linking Illumina contigs to annotated genes with assignments: `gene.assignment.tab.tsv`
+    - associated r script: `scripts/gene.num.tab.R`
+  * gene ID and mean coverage for that gene: `gene_cov_table.tsv`
+
 #### Sorting out the Sciara genome to L/X/A
   - [analyses documentation](analyses/assigment-of-L-X-A.md)
   - [associated scripts](scripts/kmer-assigment-of-L-X-A)
+  - table with scores and assignments for all Illumina contigs
+      `data/scaffold_assignment_tab_full.tsv`
 
 #### Using Busco genes to determine the age of the L chromosome
   - [analyses documentation](analyses/L_age_from_BUSCO.md)
@@ -39,7 +49,14 @@ This in an incomplete list, only those there are here on GitHub
 #### Genome wide paralogy
   - [analyses documentation](analyses/genome_wide_paralogy.md)
   - associated data
-   *
+  * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `ntgene_recip_blast_cov.tsv`
+  * table with all info from paralog exploration, paralog ID, cov, type, and paralog freq after filtering based on gene/alignment length :  `filtered_paralog_tab.tsv`
+    - associated script `scripts/paralog_divergence_prelim_analysis.R`
+    
+#### Colinearity analysis
+  - associated data
+  * table of colinear blocks between chromosomes. Contains gene ID, chromosome assignment, scf in Illumina, scf in colinear block, block info, order in block and paralog ID, and assignment, and mean gene cov: `full_colinear_tab.tsv`
+    - associated r script: `scripts/colinear_exploration.R'
 
 #### Coverage of L genes
   - [analyses documentation](analyses/cov_L_genes.md)
