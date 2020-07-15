@@ -56,7 +56,7 @@ This in an incomplete list, only those there are here on GitHub
 #### Colinearity analysis
   - associated data
   * table of colinear blocks between chromosomes. Contains gene ID, chromosome assignment, scf in Illumina, scf in colinear block, block info, order in block and paralog ID, and assignment, and mean gene cov: `data/full_colinear_tab.tsv`
-    - associated r script: `scripts/colinear_exploration.R'
+    - associated r script: `scripts/colinear_exploration.R`
 
 #### Coverage of L genes
   - [analyses documentation](analyses/cov_L_genes.md)
