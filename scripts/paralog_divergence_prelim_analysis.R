@@ -90,7 +90,7 @@ hist(paralog_cov_tab$Freq, breaks = 30, xlim = c(0,10))
 hist(paralog_cov_tab$aln_length, breaks = 100)
 hist(paralog_cov_tab$aln_length, breaks = 100, xlim = c(0,2000))
 
-#### I think I might also want to split up the lists based on frequeny (which is the number of paralogs), I'm not sure it I should do 3 and less or only 1 and more than one)
+#### I think I might also want to split up the lists based on frequency (which is the number of paralogs), I'm not sure it I should do 3 and less or only 1 and more than one)
 
 table(paralog_cov_tab$Freq)
 ###1    2    3     4    5    6    7    8    9   10   11   12   14   16   17   33   38 
@@ -166,6 +166,35 @@ identities_of_AAs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assign
 identities_of_LAs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) %in% c('LA', 'AL'), 'identity']
 identities_of_LXs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) %in% c('LX', 'XL'), 'identity']
 identities_of_AXs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) %in% c('AX', 'XA'), 'identity']
+
+
+cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#F0E442","#56B4E9" , "#D55E00", "#CC79A7", "#000000")
+
+filter_paralog_cov_tab$paralog <- paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2)
+filter_paralog_cov_tab[filter_paralog_cov_tab$paralog=="LA","paralog"] <- "AL"
+filter_paralog_cov_tab[filter_paralog_cov_tab$paralog=="XL","paralog"] <- "LX"
+filter_paralog_cov_tab[filter_paralog_cov_tab$paralog=="AX","paralog"] <- "XA"
+#write.table(filter_paralog_cov_tab, 'data/filtered_paralog_tab.tsv', quote = F, sep = "\t", row.names = F)
+
+
+LAsubset <- filter_paralog_cov_tab[filter_paralog_cov_tab$paralog %in% c("AA", "AL", "LL"),]
+cbbPalette <- c( "#009E73","#F0E442", "#E69F00","#CC79A7" ,"#56B4E9" , "#D55E00","#0072B2" , "#000000")
+ggplot(LAsubset, aes(identity, fill = paralog)) + geom_histogram( binwidth=1)+ scale_fill_manual(values=cbbPalette) +
+  theme_classic()+theme(axis.text=element_text(size=12))
+  #call geom_histogram with position="dodge" to offset the bars and manual binwidth of 2
+full.subset <- filter_paralog_cov_tab[filter_paralog_cov_tab$paralog %in% c("AA", "AL", "LL", "LX", "XX", "XA"),]
+paralog.numbers<-table(full.subset$paralog)
+paralog.numbers<-as.data.frame(paralog.numbers)
+cbbPalette <- c( "#009E73","#F0E442", "#E69F00","#CC79A7"  ,"#0072B2","#56B4E9", "#D55E00","#0072B2" , "#000000")
+ggplot(paralog.numbers, aes(y=Freq, x=Var1, fill=Var1)) + scale_fill_manual(values=cbbPalette) +
+  geom_bar(position="dodge", stat="identity")+theme_classic()+theme(axis.text=element_text(size=14))
+#+ theme(legend.text=element_text(size=12))
+
+
+
+table(LAsubset$paralog)
+ 
+
 
 pal <- c('blue', 'yellow', 'green', 'orange', 'purple', 'red')
 
@@ -253,12 +282,13 @@ lowcov_L <- apply(LL_paralogs[,c(17,18)], 1, min)
 highcov_L <- apply(LL_paralogs[,c(17,18)], 1, max)
 
 #and plot the two histograms
+cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#F0E442","#56B4E9" , "#D55E00", "#CC79A7", "#000000")
 
-hist(highcov_L, col = 'purple', breaks = 1000, xlim=c(0,100), ylim = c(0,50))
-hist(lowcov_L, col = rgb(0.4,0.6,0.1, alpha = 0.8), breaks=100, xlim=c(0,100),add = T)
+hist(highcov_L, col = c("#999999"), breaks = 1000, xlim=c(0,80), ylim = c(0,50))
+hist(lowcov_L, col = rgb(0.90,0.62,0, alpha = 0.7), breaks=100, xlim=c(0,100),add = T)
 hist(highcov_L- lowcov_L, breaks = 2000, xlim = c(0,30))
 ###note: there are a few with a cov greater than 200, look at those
-
+rgb(0.83,0.36,0, alpha = 0.8)
 table(LL_paralogs$og_freq1)
 table(LL_paralogs$og_freq2)
 #looking at genes with really high cov levels
