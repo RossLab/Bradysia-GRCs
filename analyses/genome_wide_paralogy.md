@@ -146,14 +146,55 @@ qsub -o logs -e logs -cwd -N XAblast -V -pe smp64 16 -b yes "blastn -query $AX_G
 
 Now we need to do a magic. Generating a gff file from the blast results (`data/genome_wide_paralogy/L_genes2PB_asm.blast`, `data/genome_wide_paralogy/AX_genes2ref_asm.blast`). Then reuse the all vs all protein blast and rerun MCScanX.
 
-The gtf file needs to have 4 columns, scf, gene, from, to. I will use `blast_filter.py` from generic_genomics collection of scripts to get only the best hit per gene.
+The gff file needs to have 4 columns, scf, gene, from, to. I will use `blast_filter.py` from generic_genomics collection of scripts to get only the best hit per gene.
 
 ```
 mkdir -p data/genome_wide_paralogy/anchored
 ln -s ../proteins_all_vs_all.blast data/genome_wide_paralogy/anchored/Scop_anch_prot.blast
-blast_filter.py data/genome_wide_paralogy/L_genes2PB_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' > data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
-blast_filter.py data/genome_wide_paralogy/AX_genes2ref_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' >> data/genome_wide_paralogy/anchored/Scop_anch_prot.gtf
+blast_filter.py data/genome_wide_paralogy/L_genes2PB_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' > data/genome_wide_paralogy/anchored/Scop_anch_prot.gff
+blast_filter.py data/genome_wide_paralogy/AX_genes2ref_asm.blast 1 | awk '{ if( $3 > 95 ){ print $2 "\t" $1 "\t" $9 "\t" ($9 + $8 - $7) } }' >> data/genome_wide_paralogy/anchored/Scop_anch_prot.gff
 ```
+
+##### L orthologs mapped to the autosomes
+
+This files contain 1. anchored our genes to the reference assembly and 2. chromosomal assignment of individual genes
+
+```
+data/genome_wide_paralogy/anchored/Scop_anch_prot.gff
+data/genome_wide_paralogy/nt_orthology_OG_pairs.tsv
+```
+
+We can merge them to figure out how many of the L genes map to anchored portion of the reference genome.
+
+```{R}
+orthologous_pairs <- read.table('data/genome_wide_paralogy/nt_orthology_OG_pairs.tsv', header = T)
+
+gene_anchoring <- read.table('data/genome_wide_paralogy/anchored/Scop_anch_prot.gff', header = F, col.names = c('scf', 'gene', 'from', 'to'))
+rownames(gene_anchoring) <- gene_anchoring$gene
+
+orthologous_pairs$anch1 <- gene_anchoring[orthologous_pairs$gene1, 'scf']
+orthologous_pairs$anch2 <- gene_anchoring[orthologous_pairs$gene2, 'scf']
+
+trans_asn <- read.delim("data/genome/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
+scf_asn <- read.delim("data/scaffold_assignment_tab_full.tsv", header=T, stringsAsFactors = F)
+
+row.names(scf_asn) <- scf_asn$scf
+trans_asn$assignments <- scf_asn[trans_asn$scf, 'assignments']
+row.names(trans_asn) <- trans_asn$gene
+
+orthologous_pairs[,c('chr1', 'chr2')] <- NA
+orthologous_pairs$chr1 <- trans_asn[orthologous_pairs$gene1, 'assignments']
+orthologous_pairs$chr2 <- trans_asn[orthologous_pairs$gene2, 'assignments']
+
+AL_anchored <- orthologous_pairs[orthologous_pairs$chr1 == 'A' & orthologous_pairs$chr2 == 'L', 'anch1']
+LA_anchored <- orthologous_pairs[orthologous_pairs$chr1 == 'L' & orthologous_pairs$chr2 == 'A', 'anch2']
+
+sum(table(c(AL_anchored, LA_anchored))[c('contig_103')])
+sum(table(c(AL_anchored, LA_anchored))[c('contig_171')])
+sum(table(c(AL_anchored, LA_anchored))[c('contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84')])
+```
+
+We anchored 397 genes to chromosome II (`contig_103`), 80 to chromosome III (`contig_171`) and 374 gene to chromosome IV (contigs `contig_106,contig_144,contig_458,contig_5,contig_81,contig_84`). It does not seems that the L chromosome as whole is homologous to to any of the chromosomes, rather it represent bits and pieces from the whole genome. Furthermore, the the sizes of the anchored sequences to chromosomes II, III and IV (13.1, 5.4, and 46.4 Mbp), which is probably the reason why we have so "few" genes mapped to chromosome III. However, the L homologs / Mbp varies a lot between chromosomes (approx 30, 15 and 7 for the three chromosomes). We don't have any good explanation for that yet.
 
 ##### Collinearity analysis
 
@@ -222,7 +263,7 @@ We need to find a smarter way to deal with the bloody TEs. Some random advices:
 -> match annotated genes with RepBase (why not matched when masking the genome)
 
 TODO
--> ask on the germ line meeting
+-> blast them for conserved domains
 
 ##### Redoing the Collinearity analysis without the crazy genes
 
@@ -257,6 +298,19 @@ Now that's more like it. We get 127 collinear blocks mostly A/X <-> L (94) carry
 ```
 python3 scripts/genome_wide_paralogy/merge_collinear_genes_with_coverages.py > data/genome_wide_paralogy/collinear_genes_full_table.tsv
 ```
+
+Of 94 X <-> L scaffolds, 25 are anchored to individual chromosomes. Namely 12 to chromosome II (`contig_103`), 1 to chromosome III (`contig_171`) and 12 to chromosome IV (contigs `contig_106,contig_144,contig_458,contig_5,contig_81,contig_84`)
+
+```
+table(c(collinear_table$scf1, collinear_table$scf2))[c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84')]
+
+# contig_103 contig_171 contig_106 contig_144 contig_458   contig_5       <NA>
+#         12          1          4          1          4          2            
+#  contig_84
+#          1
+```
+
+Confirming what we found before - that the genes are not homologous to one chromosome only.
 
 ##### Evaluation of fragmentation effect
 
