@@ -14,6 +14,17 @@ if fasta_file[-2:] == "gz":
 else :
     ffile = SeqIO.parse(fasta_file, "fasta")
 
+busco_genes_assigned_file = 'tables/BUSCO_assigned.tsv'
+scf2asn = dict()
+
+with open(busco_genes_assigned_file, 'r') as busco_asn_file:
+    busco_asn_file.readline()
+    for line in busco_asn_file:
+        line = line.split('\t')
+        scf = line[1].split(':')[0]
+        asn = line[3]
+        scf2asn[scf] = asn
+
 sp2seq = defaultdict(list)
 
 for seq in ffile:
@@ -24,7 +35,11 @@ for sp in sp2seq.keys():
     # if sciara_coprofila_whatever
     if sp == 'sciara_coprophila':
         for gene in sp2seq[sp]:
-            print(">" + gene.name)
+            scf = "_".join(gene.id.split('_')[2:4])
+            if scf2asn[scf] == 'L':
+                print(">" + gene.name + "_L")
+            else:
+                print(">" + gene.name + "_A")
             print(gene.seq)
         continue
     the_longest = 0
