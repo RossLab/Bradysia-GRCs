@@ -254,21 +254,26 @@ ln -s `pwd`/data/genome_wide_paralogy/anchored/Scop_anch_prot.gff data/genome_wi
 ln -s `pwd`/data/genome_wide_paralogy/proteins_all_vs_all_filtered.blast data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.blast
 
 MCScanX data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot
-grep "^## " data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_prot_filt2.tsv
+grep "^## " data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_prot_filt.tsv
 ```
 
 ```{R}
-collinear_table <- read.table('data/genome_wide_paralogy/Scop_anch_prot_filt2.tsv', col.names = c('scf1', 'scf2', 'genes', 'score', 'eval'), stringsAsFactors = F)
-collinear_table[,c('chr1', 'chr2')] <- 'AX'
+collinear_table <- read.table('data/genome_wide_paralogy/Scop_anch_prot_filt.tsv', col.names = c('scf1', 'scf2', 'genes', 'score', 'eval'), stringsAsFactors = F)
+X_scfs <- read.table('data/reference/X_contig_ID_john.txt', stringsAsFactors=F)[,1]
+
+collinear_table[,c('chr1', 'chr2')] <- 'A'
 collinear_table[grepl('ctg', collinear_table$scf1),'chr1'] <- 'L'
 collinear_table[grepl('ctg', collinear_table$scf2),'chr2'] <- 'L'
+collinear_table[collinear_table$scf1 %in% X_scfs,'chr1'] <- 'X'
+collinear_table[collinear_table$scf2 %in% X_scfs,'chr2'] <- 'X'
+
 
 table(paste(collinear_table$chr1, collinear_table$chr2))
 # AX AX  AX L   L L
 #     5    88    23
 
 sum(collinear_table[collinear_table$chr1 == 'AX', 'genes'])
-# 860
+# 840
 sum(collinear_table[collinear_table$chr1 == 'L', 'genes'])
 # 172
 ```
@@ -288,6 +293,19 @@ table(c(collinear_table$scf1, collinear_table$scf2))[c('contig_103', 'contig_171
 #         15          1          4          2          5          2            
 # contig_84
 #         2
+
+unique(c(collinear_table[collinear_table$scf1 %in% c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84'), 'scf2'],
+  collinear_table[collinear_table$scf2 %in% c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84'), 'scf1']))
+
+collinear_table[collinear_table$chr1 == 'X', ]
+
+sum(collinear_table[collinear_table$scf1 %in% X_scfs, 'genes'])
+# 119
+
+all_links <- c(collinear_table$scf1, collinear_table$scf2)
+multilink_Ls <- names(table(all_links[grepl('ctg', all_links)])[table(all_links[grepl('ctg', all_links)]) > 1])
+
+collinear_table[collinear_table$scf1 %in% multilink_Ls | collinear_table$scf2 %in% multilink_Ls, ]
 ```
 
 ##### Evaluation of fragmentation effect

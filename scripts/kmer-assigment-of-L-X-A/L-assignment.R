@@ -1,10 +1,10 @@
 
 # mapped kmers
 #setwd("/Users/christina/projects/Sciara-L-chromosome/")
-sr_kmers <- read.table("data/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
 colnames(sr_kmers)[1] <- "ID"
 
-coverage_tab <- read.table('data/table.covdiff.germ.soma.txt', stringsAsFactors = F, header = T)
+coverage_tab <- read.table('data/L-X-A-kmers/table.covdiff.germ.soma.txt', stringsAsFactors = F, header = T)
 coverage_tab <- coverage_tab[coverage_tab$ID != "*",]
 colnames(coverage_tab)[2] <- 'len'
 
@@ -32,10 +32,10 @@ overlap_tab <- overlap_tab[order(overlap_tab$len, decreasing = T),]
 # overlap_tab$logdif2
 L_assignment = overlap_tab$L_score > 0.8 & overlap_tab$logdif2 > 0.5
 Lc_assignment = (overlap_tab$L_score > 0.8 | overlap_tab$logdif2 > 0.5) & !L_assignment
-A_assignment = overlap_tab$A_score > 0.4 & overlap_tab$logdif2 < -0.1 & overlap_tab$logdif2 > -1
-Ac_assignment = (overlap_tab$A_score > 0.4 | (overlap_tab$logdif2 < -0.1 & overlap_tab$logdif2 > -1)) & !A_assignment
-X_assignment = overlap_tab$X_score > 0.4 & overlap_tab$logdif2 < 0.5 & overlap_tab$logdif2 > -0.1
-Xc_assignment = (overlap_tab$X_score > 0.4 | (overlap_tab$logdif2 < 0.5 & overlap_tab$logdif2 > -0.1)) & !X_assignment
+A_assignment = overlap_tab$A_score > 0.4 & overlap_tab$logdif2 <= -0.1 & overlap_tab$logdif2 > -1
+Ac_assignment = (overlap_tab$A_score > 0.4 | (overlap_tab$logdif2 <= -0.1 & overlap_tab$logdif2 > -1)) & !A_assignment
+X_assignment = overlap_tab$X_score > 0.4 & overlap_tab$logdif2 <= 0.5 & overlap_tab$logdif2 > -0.1
+Xc_assignment = (overlap_tab$X_score > 0.4 | (overlap_tab$logdif2 <= 0.5 & overlap_tab$logdif2 > -0.1)) & !X_assignment
 
 categories <- c('L', 'Lc', 'A', 'Ac', 'X', 'Xc', 'NA')
 overlap_tab$assignments <- 'NA'
