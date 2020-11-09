@@ -6,7 +6,7 @@ from sys import stdout
 import uuid
 
 parser = argparse.ArgumentParser(description='Reciprocal BLAST: from blast std output 6 generates two tables of orthologs as two with reciprocal hits fulfilling specified criteria')
-parser.add_argument('blastfile', help='blast file (formated as 6)')
+parser.add_argument('blastfile', help='blast file formated as -outfmt "6 std qlen slen"')
 parser.add_argument('output_pattern', help='pattern for generating output')
 parser.add_argument('-s', '-similarity', type = float, help='sequence similarity to accept the paralogy relation', default = 50)
 parser.add_argument('-gene_coverage', type = float, help='minimal fraction of gene to be covered to accept a link of two genes', default = 0.6)
@@ -142,7 +142,7 @@ with open(args.output_pattern + "_OGs.tsv", 'w') as og_file:
         og_number += 1
 
 with open(args.output_pattern + "_OG_pairs.tsv", 'w') as og_pairs_file:
-    og_pairs_file.write("\t".join(['og', 'gene1', 'gene2', 'identity', 'aln_len'])  + '\n')
+    og_pairs_file.write("\t".join(['og', 'gene1', 'gene2', 'identity', 'aln_len', 'qlen', 'slen'])  + '\n')
     for aln in blast_input:
         if (aln.query, aln.subject) in og_pairs:
             og_pairs_file.write("\t".join([og_hast2og_name[gene2og[aln.query]], aln.query, aln.subject, str(aln.pident), str(aln.len),  str(aln.qlen), str(aln.slen)])  + '\n')

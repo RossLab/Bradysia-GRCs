@@ -14,7 +14,8 @@ scf2asn = dict()
 with open("data/scaffold_assignment_tab_full.tsv") as scf2asn_file:
     for line in scf2asn_file:
         scf_tab = line.rstrip('\n').split('\t')
-        scf2asn[scf_tab[1]] = scf_tab[14]
+        scf = '_'.join(scf_tab[0].split('_')[0:2])
+        scf2asn[scf] = scf_tab[13]
 
 gene2asn = dict()
 gene2scf = dict()
@@ -24,7 +25,7 @@ with open("data/genome/gene.scaffold.map.tsv") as gene2scf_file:
         gene2scf[gene] = scf
         gene2asn[gene] = scf2asn[scf]
 
-with open('data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.collinearity') as colinearity_file:
+with open('data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.collinearity') as colinearity_file:
     block = 0
     anch1 = ''
     anch2 = ''
@@ -42,4 +43,3 @@ with open('data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.colli
         stdout.write(("{}\t" * 8 + "{}\n").format(gene2, gene2asn[gene2], gene2scf[gene2], anch2, str(block) + "b", gene_in_block, gene2cov[gene1], gene1, gene2asn[gene1]))
 
         gene_in_block += 1
-

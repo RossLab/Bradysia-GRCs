@@ -161,13 +161,13 @@ This files contain 1. anchored our genes to the reference assembly and 2. chromo
 
 ```
 data/genome_wide_paralogy/anchored/Scop_anch_prot.gff
-data/genome_wide_paralogy/nt_orthology_OG_pairs.tsv
+data/nt_orthology_OG_pairs.tsv
 ```
 
 We can merge them to figure out how many of the L genes map to anchored portion of the reference genome.
 
 ```{R}
-orthologous_pairs <- read.table('data/genome_wide_paralogy/nt_orthology_OG_pairs.tsv', header = T)
+orthologous_pairs <- read.table('data/nt_orthology_OG_pairs.tsv', header = T)
 
 gene_anchoring <- read.table('data/genome_wide_paralogy/anchored/Scop_anch_prot.gff', header = F, col.names = c('scf', 'gene', 'from', 'to'))
 rownames(gene_anchoring) <- gene_anchoring$gene
@@ -237,63 +237,48 @@ rownames(anchored_genes) <- anchored_genes$scf
 scaffolds_with_colinear_genes$anchored_genes <- anchored_genes[scaffolds_with_colinear_genes$scf, 'genes']
 ```
 
-##### Filtering out crazy genes
+##### Filtering using Christina's approach
 
-That's a bit crazy, there are genes that are in multiple collinear blocks that are completelly dominating the signal. These probably transposons that were annotated as genes, we should filter them out before we will carry on with the analysis.
-
-Let's just generate a list of genes that are in collinear blocks, every gene will be there that many times as the number of block it is in
-
-```bash
-grep -v "^#" data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | cut -f 2 > data/genome_wide_paralogy/colinear_genes.list
-grep -v "^#" data/genome_wide_paralogy/anchored/Scop_anch_prot.collinearity | cut -f 3 >> data/genome_wide_paralogy/colinear_genes.list
-```
-
-and then in R, let's just make a list of those that are in more than 5 blocks (as the most obvious TE candidates).
-
-```R
-colinear_genes <- read.table('data/genome_wide_paralogy/colinear_genes.list', stringsAsFactors=F)$V1
-in_number_of_blocks <- table(colinear_genes)
-writeLines(names(in_number_of_blocks[in_number_of_blocks > 5]), 'data/genome_wide_paralogy/list_of_TE_candidates_to_filter.tsv')
-```
-
-Now we can use that list to filter out the blast and gff file to get filtered collinearity analysis and redo the analysis.
-
-We need to find a smarter way to deal with the bloody TEs. Some random advices:
--> look at the TE domains
--> match annotated genes with RepBase (why not matched when masking the genome)
-
-TODO
--> blast them for conserved domains
-
-##### Redoing the Collinearity analysis without the crazy genes
+Using approach in [this](https://github.com/RossLab/Sciara-L-chromosome/blob/master/scripts/paralog_divergence_prelim_analysis.R) script. I wrote a script that does this filtering directly on the blast file.
 
 ```
-mkdir MCScanX data/genome_wide_paralogy/anchored_filtered
-python3 scripts/genome_wide_paralogy/filter_gff_for_colinearity.py > data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.gff
-cp data/genome_wide_paralogy/anchored/*blast data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.blast
-MCScanX data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt
-grep "^## " data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_filt_collinearity.tsv
+scripts/genome_wide_paralogy/filter_blast_for_colinearity.R
 ```
 
-and again some exploration in R
+Now the filtered blast file (otherwise the same) is called `data/genome_wide_paralogy/genes_all_vs_all_filtered.blast`
+
+```
+mkdir data/genome_wide_paralogy/anchored_filtered
+# python3 scripts/genome_wide_paralogy/filter_gff_for_colinearity.py > data/genome_wide_paralogy/anchored_filtered/Scop_prot_anch_filt.gff
+ln -s `pwd`/data/genome_wide_paralogy/anchored/Scop_anch_prot.gff data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.gff
+ln -s `pwd`/data/genome_wide_paralogy/proteins_all_vs_all_filtered.blast data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.blast
+
+MCScanX data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot
+grep "^## " data/genome_wide_paralogy/anchored_filtered/Scop_anch_prot.collinearity | tr '=' ' ' | tr '&' ' ' | awk '{print $10 "\t" $11 "\t" $9 "\t" $5 "\t" $7}' > data/genome_wide_paralogy/Scop_anch_prot_filt.tsv
+```
 
 ```{R}
-collinear_table <- read.table('data/genome_wide_paralogy/Scop_anch_filt_collinearity.tsv', col.names = c('scf1', 'scf2', 'genes', 'score', 'eval'))
-collinear_table[,c('chr1', 'chr2')] <- 'AX'
+collinear_table <- read.table('data/genome_wide_paralogy/Scop_anch_prot_filt.tsv', col.names = c('scf1', 'scf2', 'genes', 'score', 'eval'), stringsAsFactors = F)
+X_scfs <- read.table('data/reference/X_contig_ID_john.txt', stringsAsFactors=F)[,1]
+
+collinear_table[,c('chr1', 'chr2')] <- 'A'
 collinear_table[grepl('ctg', collinear_table$scf1),'chr1'] <- 'L'
 collinear_table[grepl('ctg', collinear_table$scf2),'chr2'] <- 'L'
+collinear_table[collinear_table$scf1 %in% X_scfs,'chr1'] <- 'X'
+collinear_table[collinear_table$scf2 %in% X_scfs,'chr2'] <- 'X'
+
 
 table(paste(collinear_table$chr1, collinear_table$chr2))
-# AX L  L L
-#   94   33
+# AX AX  AX L   L L
+#     5    88    23
 
 sum(collinear_table[collinear_table$chr1 == 'AX', 'genes'])
-# 864
+# 840
 sum(collinear_table[collinear_table$chr1 == 'L', 'genes'])
-# 242
+# 172
 ```
 
-Now that's more like it. We get 127 collinear blocks mostly A/X <-> L (94) carrying 864 genes and L <-> L (33) carrying 242 genes. Here is a script that will generate a table of genes with detailed information for downstream analses
+Now that's more like it. We get 116 collinear blocks mostly A/X <-> L (88) carrying 860 genes and L <-> L (23) carrying 172 genes. Here is a script that will generate a table of genes with detailed information for downstream analses
 
 ```
 python3 scripts/genome_wide_paralogy/merge_collinear_genes_with_coverages.py > data/genome_wide_paralogy/collinear_genes_full_table.tsv
@@ -305,12 +290,23 @@ Of 94 X <-> L scaffolds, 25 are anchored to individual chromosomes. Namely 12 to
 table(c(collinear_table$scf1, collinear_table$scf2))[c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84')]
 
 # contig_103 contig_171 contig_106 contig_144 contig_458   contig_5       <NA>
-#         12          1          4          1          4          2            
-#  contig_84
-#          1
-```
+#         15          1          4          2          5          2            
+# contig_84
+#         2
 
-Confirming what we found before - that the genes are not homologous to one chromosome only.
+unique(c(collinear_table[collinear_table$scf1 %in% c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84'), 'scf2'],
+  collinear_table[collinear_table$scf2 %in% c('contig_103', 'contig_171', 'contig_106', 'contig_144', 'contig_458', 'contig_5', 'contig_81', 'contig_84'), 'scf1']))
+
+collinear_table[collinear_table$chr1 == 'X', ]
+
+sum(collinear_table[collinear_table$scf1 %in% X_scfs, 'genes'])
+# 119
+
+all_links <- c(collinear_table$scf1, collinear_table$scf2)
+multilink_Ls <- names(table(all_links[grepl('ctg', all_links)])[table(all_links[grepl('ctg', all_links)]) > 1])
+
+collinear_table[collinear_table$scf1 %in% multilink_Ls | collinear_table$scf2 %in% multilink_Ls, ]
+```
 
 ##### Evaluation of fragmentation effect
 
