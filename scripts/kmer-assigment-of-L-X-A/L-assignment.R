@@ -1,4 +1,4 @@
-
+library(ggplot2)
 # mapped kmers
 #setwd("/Users/christina/projects/Sciara-L-chromosome/")
 sr_kmers <- read.table("data/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
@@ -96,3 +96,58 @@ barplot(sizes, ylab = "size (Mb)", xlab='chromosome assignment',col=pal)
 #             quote = F, sep = "\t", row.names = F, col.names = F)
 # write.table(coverage_specific_candidates[,'ID'], file = "data/L-candidates-cov-only.tsv",
 #             quote = F, sep = "\t", row.names = F, col.names = F)
+
+### I want to make a summary table comparing chromosome sizes between Rasch and our assembly and identification
+sizes<- as.data.frame(sizes)
+sizes$identity<-c("L", "Lc", "A", "Ac", "X", "Xc", "NA")
+sizes2<-sizes[c(1,3,5),]
+6.8+0.9+2.4+10.1
+#rbind<-(sizes2 , na=c(20.2, "unassigned"))
+
+chromosome.type<-c("A","X", "L","Unassigned", "Total","A","X", "L","Unassigned", "Total")
+size<-c(162.4, 52.9, 154.1, 20.2, 389.6 ,225, 49, 88, 0, 362)
+source<-c("genome","genome","genome","genome","genome","rasch","rasch","rasch","rasch","rasch")
+
+size.table<-cbind(chromosome.type,size.assembly,size.rasch)
+pal <- c('yellow','yellow', 'green','green', 'red', 'red', 'grey')
+# The palette with black:
+cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
+barplot(size.assembly, ylab = "size (Mb)", xlab='chromosome assignment',col=cbbPalette)
+
+cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2","#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2")
+chromosome<-c("Autosome","X", "GRC","Unassigned", "Total","Austosome","X", "GRC","Unassigned", "Total")
+tab.size<-as.data.frame(chromosome)
+tab.size$size<-c(162.4, 52.9, 154.1, 20.2, 389.6 ,225, 49, 88, 0, 362)
+tab.size$source<-c("genome","genome","genome","genome","genome","rasch","rasch","rasch","rasch","rasch")
+
+ggplot(tab.size, aes(fill=chromosome, y=size, x=source)) + scale_fill_manual(values=cbbPalette) +
+  geom_bar(position="stack", stat="identity")+theme_classic()
+
+ggplot(tab.size, aes(fill=chromosome, y=size, x=source)) + scale_fill_manual(values=cbbPalette) +
+  geom_bar(position="dodge", stat="identity")+theme_classic()
+
+
+#without the total bar
+cbbPalette <- c("#009E73", "#56B4E9","#E69F00","#999999", "#F0E442","#0072B2" , "#D55E00", "#CC79A7")
+chromosome<-c("Autosomes","X", "GRC","Unassigned","Autosomes","X", "GRC","Unassigned")
+tab.size<-as.data.frame(chromosome)
+tab.size$chromosome <- factor(tab.size$chromosome,levels = c("Autosomes", "X", "GRC", "Unassigned"))  
+tab.size$size<-c(162.4, 52.9, 154.1, 20.2 ,225, 49, 88, 0)
+tab.size$source<-c("genome","genome","genome","genome","rasch","rasch","rasch","rasch")
+tab.size$source <- factor(tab.size$source,levels = c("rasch", "genome"))  
+
+ggplot(tab.size, aes(fill=chromosome, y=size, x=source)) + scale_fill_manual(values=cbbPalette) +
+  geom_bar(position="dodge", stat="identity")+theme_classic()+theme(axis.text=element_text(size=12))+ theme(legend.text=element_text(size=12))
+
+
+cbbPalette <- c("#009E73", "#56B4E9","#E69F00","#999999", "#F0E442","#0072B2" , "#D55E00", "#CC79A7")
+chromosome<-c("Autosomes","X", "GRC","Unassigned")
+tab.size<-as.data.frame(chromosome)
+tab.size$chromosome <- factor(tab.size$chromosome,levels = c("Autosomes", "X", "GRC", "Unassigned"))  
+tab.size$size<-c(162.4, 52.9, 154.1, 20.2)
+#tab.size$source<-c("genome","genome","genome","genome","rasch","rasch","rasch","rasch")
+#tab.size$source <- factor(tab.size$source,levels = c("rasch", "genome"))  
+
+ggplot(tab.size, aes(fill=chromosome, y=size, x=chromosome)) + scale_fill_manual(values=cbbPalette) +
+  geom_bar(position="dodge", stat="identity")+theme_classic()+theme(axis.text=element_text(size=12))+ theme(legend.text=element_text(size=12))
+
