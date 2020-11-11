@@ -6,7 +6,7 @@ note2: realised that we can't do species tree with 2L genes since we don't know 
 **Objective of script** is to make a species alignment and phylogeny for A/X and L duplicate buscos (there are more than 300) and gene trees for each gene, then to try to reconcile the species tree and gene trees with concordance factors in IQtree.
 
 
-### Before step 1: 
+### Before step 1:
 - the BUSCO IDs in the 4b_busco_allsp_aa2/ folder are only the ID's with more than 80 % of the species in the alignment. Might need to take out any without all the species later.
 
 ### Step1: Keeping only longest orf in BUSCO aa fastas
@@ -64,12 +64,12 @@ took out BUSCO id's for BUSCO groups:
 - A-L-L and L-L-X: `data/LLother_paralogs.txt`
 
 script to do this in R (probably should be separate script): `make_BUSCO_scf_tab`
-then 
+then
+
 ```
 cut -f1 Lother_paralogs.txt | uniq > L_XA_buscoid.Illumina.txt
 ```
 
-*note* need to redo file that gives BUSCO gene pairs with Illumina BUSCO file
 ```
 for gene in $(cat L_XA_buscoid.Illumina.txt); do
   cp 7_GRC_phylogenies/13_mafft_sorted/"$gene"_sorted.fasta 7_GRC_phylogenies/14_mafft_L_other/
@@ -78,7 +78,9 @@ for gene in $(cat LL_XA_buscoid.Illumina.txt); do
   cp 7_GRC_phylogenies/13_mafft_sorted/"$gene"_sorted.fasta 7_GRC_phylogenies/14b_mafft_LL_other/
 done
 ```
+
 output
+
 ```
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/2418at50557_sorted.fasta': No such file or directory
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/12466at50557_sorted.fasta': No such file or directory
@@ -113,23 +115,30 @@ cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/128559at50557_sorted.fasta': 
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/137014at50557_sorted.fasta': No such file or directory
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/146376at50557_sorted.fasta': No such file or directory
 ```
+
 (32)
+
 ```
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/39740at50557_sorted.fasta': No such file or directory
 cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/93865at50557_sorted.fasta': No such file or directory
 ```
+
 (2)
+
 ```
 qsub -o logs -e logs -cwd -N sorting -V -pe smp64 2 -b yes './command.mvalignments.sh'
 ```
 
 ### Step5: running IQtree on all alignments to make species tree and also on all BuscoID's separately to make gene trees.
+
 This is renamming the species names in the fasta file to make the species tree. I think I'll do this on all the files in the 14_ directory since they're copied from 13_ anyways
+
 ```
 for faa_file in *; do
 	cat "$faa_file" | awk 'BEGIN { FS = "_" }; />/{ print $1"_"$2 } !/^>/ { print $0 }' > renamed."$faa_file" && mv renamed."$faa_file" "$faa_file"
 done
 ```
+
 ```
 qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 8 -b yes 'iqtree -s 7_GRC_phylogenies/14_mafft_L_other/ -alrt 1000 -bb 1000 -nt AUTO -ntmax 8 -pre 7_GRC_phylogenies/15c_sp_tree_Lother/Lother_sp'
 ```
@@ -138,6 +147,7 @@ For species trees (in this case species tree includes the GRC(s) as a "species")
 
 
 For gene trees
+
 ```
 for fasta_file in 7_GRC_phylogenies/14_mafft_L_other/*; do
   gene=$(echo "$fasta_file" | cut -f 3 -d "/" | cut -f 1 -d "_")
@@ -155,9 +165,23 @@ qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 8 -b yes './command.iqtree_L.sh
 
 ### Now need to compute concordance factors
 command from iqtree site
+
 ```
 iqtree -t concat.treefile --gcf loci.treefile -p ALN_DIR --scf 100 --prefix concord -T 10
 ```
 ```
 qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 10 -b yes 'iqtree -t 7_GRC_phylogenies/15c_sp_tree_Lother/Lother_sp.treefile --gcf 7_GRC_phylogenies/15_genetrees_L/*.treefile -p 7_GRC_phylogenies/14_mafft_L_other/ --scf 100 --prefix 7_GRC_phylogenies/16_concord/concord -T 10'
 ```
+
+### GRC genes phylogeny summary
+
+For the next sections I copied all the tree in folowing directories `7_GRC_phylogenies/15_genetrees_L/`, `7_GRC_phylogenies/15b_genetrees_LL/` to `data/GRC_phylogenies/15_genetrees_L` and `data/GRC_phylogenies/15b_genetrees_LL` respectively.
+
+Then script
+
+```
+python3 scripts/phylogeny/nex2table_of_L_neighbors.py
+```
+
+reads all the nexus files in the mentioned directories and extract information about the closest relatives of all GRC genes. The result is in [this table](tables/L-busco-phylogenies-summary.tsv): `tables/L-busco-phylogenies-summary.tsv`. Three three columns are BUSCO id, clustering of GRC1, and clustering of GRC2. For trees with one GRC only, the value of GRC2 is NA. NA is also the case of a few cases of unresolved trees, but this should not affect the global picture.
+
