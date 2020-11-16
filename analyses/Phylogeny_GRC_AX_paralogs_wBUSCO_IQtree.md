@@ -180,8 +180,8 @@ For the next sections I copied all the tree in folowing directories `7_GRC_phylo
 Then script
 
 ```
-python3 scripts/phylogeny/nex2table_of_L_neighbors.py
+scripts/phylogeny/nwck2table_of_L_neighbors.py
 ```
 
-reads all the nexus files in the mentioned directories and extract information about the closest relatives of all GRC genes. The result is in [this table](tables/L-busco-phylogenies-summary.tsv): `tables/L-busco-phylogenies-summary.tsv`. Three three columns are BUSCO id, clustering of GRC1, and clustering of GRC2. For trees with one GRC only, the value of GRC2 is NA. NA is also the case of a few cases of unresolved trees, but this should not affect the global picture.
+reads all the newick files in the mentioned directories and extract information about the closest relatives of all GRC genes. The result is in [this table](tables/L-busco-phylogenies-summary.tsv): `tables/L-busco-phylogenies-summary.tsv`. The columns are BUSCO id, taxonomic assignment of GRC1, GRC2, and X/A copy respectively . For trees with one GRC only, the value of GRC2 is NA. NA is also the case of a few cases of unresolved trees, but this should not affect the global picture.
 
