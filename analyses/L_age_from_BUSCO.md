@@ -159,3 +159,14 @@ For qtree the easiest way to specify an outgroup is to provide it as the first s
 ```
 python3 scripts/Getting_L_age_using_BUSCO/sorting_MAFFT_alignmnets_of_BUSCO_genes.py <mafft.fasta> > <mafft_resorted.fasta>
 ```
+
+### FigTree Notes
+
+
+```bash
+phylopath=/Volumes/dump/projects/PGE/Sciara-L-Chromosome/data/GRC_phylogenies
+for treefile in $phylopath/15_genetrees_L/*treefile; do
+  pngfile=$(basename $treefile .treefile).png
+  java -Xms64m -Xmx512m -jar lib/figtree.jar -graphic PNG $treefile $phylopath/plot_$pngfile
+done
+```
