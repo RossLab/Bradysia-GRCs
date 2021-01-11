@@ -1,18 +1,18 @@
 
 # reading the BUSCO table
-grcs <- read.table('tables/L-busco-phylogenies-summary.tsv', col.names = c('busco_id', 'grc_1', 'grc_2'))
+grcs <- read.table('tables/L-busco-phylogenies-summary.tsv', header = T)
 
 
-grcs_L <- grcs[is.na(grcs$grc_2), ]
-single_GRC_busco <- table(grcs_L$grc_1)
+grcs_L <- grcs[is.na(grcs$GRC_2), ]
+single_GRC_busco <- table(grcs_L$GRC_1)
 single_GRC_busco <- single_GRC_busco[c(1,3,2)]
-#
+
 # cecidomyiidae         other     sciaridae
 #           247             6            86
  # 0.72861357 0.01769912 0.25368732
 
-grcs_LL <- grcs[!is.na(grcs$grc_2), ]
-grcs_LL$both_grcs <- paste(grcs_LL$grc_1, grcs_LL$grc_2, sep = '-')
+grcs_LL <- grcs[!is.na(grcs$GRC_2), ]
+grcs_LL$both_grcs <- paste(grcs_LL$GRC_1, grcs_LL$GRC_2, sep = '-')
 
 # these two are equivalent
 grcs_LL$both_grcs[grcs_LL$both_grcs == 'sciaridae-cecidomyiidae'] <- 'cecidomyiidae-sciaridae'

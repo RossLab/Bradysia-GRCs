@@ -11,7 +11,7 @@
 
 #setwd("/Users/christina/projects/Sciara-L-chromosome/")
 scf_asn <- read.delim("data/scaffold_assignment_tab_full.tsv", header=T, stringsAsFactors = F)
-trans_asn <- read.delim("data/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
+trans_asn <- read.delim("data/genome/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
 row.names(scf_asn) <- scf_asn$scf
 row.names(trans_asn) <- trans_asn$gene
 genes.to.scf<-merge(scf_asn,trans_asn)
@@ -39,7 +39,7 @@ colnames(paralog_table_full)[11] <- 'scf_gene2'
 
 ### Now I want to add the information about gene cov and the percent of the gene the alignment covers into the table and then set some cutoff threshold.
 #### At the moment I think I'll set a min length cutoff of 100nt for each gene and I'll make two tables, one for paralogs where the alignment covers 80% of the gene and one where it's less.
-#### Also, I'll also separate genes into two lists based on whether the blast hit is on the same scaffold or a different scaffold 
+#### Also, I'll also separate genes into two lists based on whether the blast hit is on the same scaffold or a different scaffold
 
 paralog_table_full$percentaln1<-paralog_table_full$aln_len/paralog_table_full$len_gene1
 paralog_table_full$percentaln2<-paralog_table_full$aln_len/paralog_table_full$len_gene2
@@ -93,19 +93,19 @@ hist(paralog_cov_tab$aln_length, breaks = 100, xlim = c(0,2000))
 #### I think I might also want to split up the lists based on frequency (which is the number of paralogs), I'm not sure it I should do 3 and less or only 1 and more than one)
 
 table(paralog_cov_tab$Freq)
-###1    2    3     4    5    6    7    8    9   10   11   12   14   16   17   33   38 
-#2184  286  507   60   30   84   49   32    9   40   33   12   14   16   17   33   38 
+###1    2    3     4    5    6    7    8    9   10   11   12   14   16   17   33   38
+#2184  286  507   60   30   84   49   32    9   40   33   12   14   16   17   33   38
 #2184  143  169   15    6    14    7   4    9   4     3   1     1   1     1    1   1
 
 #with new filtering of genes at twice the length of partner
-###1    2    3    4    5    6    7    8    9   10   11   12   13   16   17   21   33 
+###1    2    3    4    5    6    7    8    9   10   11   12   13   16   17   21   33
 #2176  286  501   60   30   78   42   32    9   40   33   12   13   16   17   21   33
 
 #I think the most interesting ones are the ones with one paralog (since there are by far the most of those) and the ones with three, I'm going to work with the lists separately for now
 
 ### Below is some data exploration
 
-#### first a histogram of types of paralogs and identities for the whole table 
+#### first a histogram of types of paralogs and identities for the whole table
 identities_of_LLs <- paralog_cov_tab[paste0(paralog_cov_tab$assignment_gene1, paralog_cov_tab$assignment_gene2) == 'LL', 'identity']
 identities_of_XXs <- paralog_cov_tab[paste0(paralog_cov_tab$assignment_gene1, paralog_cov_tab$assignment_gene2) == 'XX', 'identity']
 identities_of_AAs <- paralog_cov_tab[paste0(paralog_cov_tab$assignment_gene1, paralog_cov_tab$assignment_gene2) == 'AA', 'identity']
@@ -193,7 +193,7 @@ ggplot(paralog.numbers, aes(y=Freq, x=Var1, fill=Var1)) + scale_fill_manual(valu
 
 
 table(LAsubset$paralog)
- 
+
 
 
 pal <- c('blue', 'yellow', 'green', 'orange', 'purple', 'red')
@@ -264,7 +264,7 @@ paralog.types<-c('AA', 'AX', 'LA', 'LL', 'LX', 'XX')
 paralog.nums<-data.frame(paralog.types, len.paralogtypes)
 pal <- c('green', 'purple', 'blue', 'yellow', 'orange', 'red')
 png('tables/paralog_count_all_filtered_difscf.png')
-barplot(paralog.nums$len.paralogtypes~paralog.nums$paralog.types, col=pal)
+barplot(paralog.nums$len.paraloparalog.gtypes~paralog.nums$paralog.types, col=pal)
 dev.off()
 #filter_paralog_cov_tab_difscf[filter_paralog_cov_tab_difscf$scf_gene1==filter_paralog_cov_tab_difscf$scf_gene2, ]
 
@@ -317,7 +317,7 @@ og.group.filt<-filter_paralog_cov_tab[, c(1,19,20)]
 colnames(og.group.filt)[3] <- 'genes'
 og.group.filt$expected_links = sapply(og.group.filt$genes, function(x) { ncol(combn(x, 2))} )
 og.group.filt1<-og.group.filt[og.group.filt$og_freq2 == og.group.filt$expected_links, ]
-table(og.group.filt1$genes) 
+table(og.group.filt1$genes)
 perfect.og<-unique(og.group.filt1)
 perfect.og.tab<-merge(filter_paralog_cov_tab , perfect.og ,by.x="og",by.y = "og")
 
@@ -339,12 +339,9 @@ og.group.filt_unf<-paralog_cov_tab_unf[, c(1,16,19)]
 colnames(og.group.filt_unf)[3] <- 'genes'
 og.group.filt_unf$expected_links = sapply(og.group.filt_unf$genes, function(x) { ncol(combn(x, 2))} )
 og.group.filt_unf<-og.group.filt_unf[og.group.filt_unf$og_freq1 == og.group.filt_unf$expected_links, ]
-table(og.group.filt_unf$genes)  
+table(og.group.filt_unf$genes)
 
 #doing some data exploration
-paralog.3gene<-perfect.og.tab[perfect.og.tab$genes==3,]
+paralog.gene <- perfect.og.tab[perfect.og.tab$genes==3,]
 
 #identities_of_AAAs <- filter_paralog_cov_tab_difscf[paste0(filter_paralog_cov_tab_difscf$assignment_gene1, filter_paralog_cov_tab_difscf$assignment_gene2) %in% c('AX', 'XA'), 'identity']
-
-
-   
