@@ -6,7 +6,7 @@ Bradysia coprophila is a fungus gnat (fly) that carries germline restricted chro
 
 Within this repository, **L** is a synonym of **g**erm-line **r**estricted **c**hromosome (**GRC**).
 
-### Project data
+### Project data
 
 Later paths should be replaced by URLs in public reposutories.
 
