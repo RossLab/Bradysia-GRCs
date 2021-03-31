@@ -49,10 +49,10 @@ This in an incomplete list, only those there are here on GitHub
 
 #### Genome wide paralogy
   - [analyses documentation](analyses/genome_wide_paralogy.md)
+  - [scripts] (scripts/paralog_divergence_prelim_analysis.R)
   - associated data
   * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `data/ntgene_recip_blast_cov.tsv`
   * table with all info from paralog exploration, paralog ID, cov, type, and paralog freq after filtering based on gene/alignment length :  `data/filtered_paralog_tab.tsv`
-    - associated script `scripts/paralog_divergence_prelim_analysis.R`
     
 #### Colinearity analysis
   - associated data
