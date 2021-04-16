@@ -1,6 +1,6 @@
 ### Overview
 
-Bradysia coprophila is a fungus gnat (fly) that carries germline restricted chromosomes (GRCs or 'L' chromosomes). We sequenced the germ tissue in B. coprophila and identified the GRCs using K-mer and coverage based techniques. We then compared the genes on the GRCs to those in the core genome (i.e. autosomes and X chromosome) of B. coprophila to explore how the GRCs evolved in this species. The code in this repository was used in the analyses in this manuscript (https://doi.org/10.1101/2021.02.08.430288).
+*Bradysia coprophila* is a fungus gnat (fly) that carries germline restricted chromosomes (GRCs or 'L' chromosomes). We sequenced the germ tissue in *B. coprophila* and identified the GRCs using K-mer and coverage based techniques. We then compared the genes on the GRCs to those in the core genome (i.e. autosomes and X chromosome) to explore how the GRCs evolved in this species. The code in this repository was used in the analyses in this manuscript (https://doi.org/10.1101/2021.02.08.430288).
 
 #### Notes
 
