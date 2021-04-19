@@ -177,7 +177,7 @@ done
 
 
 
-*Code below is to run Iqtree on all BUSCO id's with one GRC gene and one A/X gene, the code below was what worked in the end, I think some of the code above wasn't used*
+*Christina's note: Code below is to run Iqtree on all BUSCO id's with one GRC gene and one A/X gene, the code below was what worked in the end, I think some of the code above wasn't used*
 
 
 note: had some issues initially so started again in 10_seqs2. need to delete 1_seq_etc and 2_ 3_ any others before 10_
