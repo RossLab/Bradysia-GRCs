@@ -10,13 +10,14 @@
 ### First making a table with gene ident, length, assignment, etc...(need to get gene info from braker list)
 
 #setwd("/Users/christina/projects/Sciara-L-chromosome/")
+library(ggplot2)
 scf_asn <- read.delim("data/scaffold_assignment_tab_full.tsv", header=T, stringsAsFactors = F)
 trans_asn <- read.delim("data/gene.scaffold.map.tsv", header=F, stringsAsFactors = F, col.names = c('gene', 'scf'))
 row.names(scf_asn) <- scf_asn$scf
 row.names(trans_asn) <- trans_asn$gene
 genes.to.scf<-merge(scf_asn,trans_asn)
 
-genes.info<-genes.to.scf[,c(16,15,1)]
+genes.info<-genes.to.scf[,c(17,16,15,1)]
 
 ### now loading some of the blast results and merging data.frames into one table
 
@@ -24,15 +25,17 @@ genes.info<-genes.to.scf[,c(16,15,1)]
 blast_nt <- read.delim("data/nt_orthology_OG_pairs.tsv", header=T, stringsAsFactors = F, col.names = c("og", "gene1" , "gene2", "identity", "aln_length", "len_gene1", "len_gene2"))
 paralog_table_full<- merge(blast_nt ,genes.info,by.x="gene1",by.y = "gene")
 #paralog_table_full<-paralog_table_full[,c(1:9)]
-colnames(paralog_table_full)[8] <- 'assignment_gene1'
-colnames(paralog_table_full)[9] <- 'scf_gene1'
+colnames(paralog_table_full)[9] <- 'assignment_gene1'
+colnames(paralog_table_full)[10] <- 'scf_gene1'
+colnames(paralog_table_full)[8] <- 'cov_scf1'
 
 paralog_table_full<- merge(paralog_table_full ,genes.info,by.x="gene2",by.y = "gene")
 #paralog_table_full<-paralog_table_full[,c(1:11)]
-colnames(paralog_table_full)[10] <- 'assignment_gene2'
-colnames(paralog_table_full)[11] <- 'scf_gene2'
+colnames(paralog_table_full)[12] <- 'assignment_gene2'
+colnames(paralog_table_full)[13] <- 'scf_gene2'
+colnames(paralog_table_full)[11] <- 'cov_scf2'
 
-#paralog_table_full<-paralog_table_full[, c(3,2,1,4,5,6,8,9,7,10,11)]
+paralog_table_full<-paralog_table_full[, c(3,2,1,4,5,6,8,9,10,7,11,12,13)]
 
 ##ok, it all looks good, there are 3444 paralogs sets total
 #write.table(paralog_table_full, 'data/ntgene_blast_pair_summary.tsv', quote = F, sep = "\t", row.names = F)
@@ -65,10 +68,10 @@ cov_genes<-cov_genes[c(10,11)]
 
 ##I'm going to put the cov values in the full table, so I can subset differently later if I want
 paralog_cov_tab <- merge(paralog_table_full,cov_genes,by.x="gene1",by.y = "braker_gene")
-colnames(paralog_cov_tab)[17] <- 'meancov_gene1'
+colnames(paralog_cov_tab)[19] <- 'meancov_gene1'
 paralog_cov_tab <- merge(paralog_cov_tab,cov_genes,by.x="gene2",by.y = "braker_gene")
-colnames(paralog_cov_tab)[18] <- 'meancov_gene2'
-colnames(paralog_cov_tab)[16] <- 'og_freq1'
+colnames(paralog_cov_tab)[20] <- 'meancov_gene2'
+colnames(paralog_cov_tab)[18] <- 'og_freq1'
 #paralog_cov_tab <- paralog_cov_tab[!is.na(paralog_cov_tab$identity),]
 #write.table(paralog_cov_tab, 'data/ntgene_recip_blast_cov.tsv', quote = F, sep = "\t", row.names = F)
 
@@ -92,7 +95,7 @@ hist(paralog_cov_tab$aln_length, breaks = 100, xlim = c(0,2000))
 
 #### I think I might also want to split up the lists based on frequency (which is the number of paralogs), I'm not sure it I should do 3 and less or only 1 and more than one)
 
-table(paralog_cov_tab$Freq)
+table(paralog_cov_tab$og_freq1)
 ###1    2    3     4    5    6    7    8    9   10   11   12   14   16   17   33   38 
 #2184  286  507   60   30   84   49   32    9   40   33   12   14   16   17   33   38 
 #2184  143  169   15    6    14    7   4    9   4     3   1     1   1     1    1   1
@@ -153,12 +156,13 @@ filter_paralog_cov_tab<-filter_paralog_cov_tab[filter_paralog_cov_tab$percentaln
 filter_paralog_cov_tab<-filter_paralog_cov_tab[filter_paralog_cov_tab$percentaln2 >0.7 , ]
 #2707   18
 
+
 ogtable3<-table(filter_paralog_cov_tab$og)
 hist(ogtable3, breaks=30)
 ogtable4<-as.data.frame(ogtable3)
 filter_paralog_cov_tab<-merge(filter_paralog_cov_tab , ogtable4 ,by.x="og",by.y = "Var1")
 head(filter_paralog_cov_tab)
-colnames(filter_paralog_cov_tab)[19] <- 'og_freq2'
+colnames(filter_paralog_cov_tab)[21] <- 'og_freq2'
 
 identities_of_LLs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) == 'LL', 'identity']
 identities_of_XXs <- filter_paralog_cov_tab[paste0(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) == 'XX', 'identity']
@@ -185,11 +189,17 @@ ggplot(LAsubset, aes(identity, fill = paralog)) + geom_histogram( binwidth=1)+ s
 full.subset <- filter_paralog_cov_tab[filter_paralog_cov_tab$paralog %in% c("AA", "AL", "LL", "LX", "XX", "XA"),]
 paralog.numbers<-table(full.subset$paralog)
 paralog.numbers<-as.data.frame(paralog.numbers)
+
+
+## plots for paper (fig3)
 cbbPalette <- c( "#009E73","#F0E442", "#E69F00","#CC79A7"  ,"#0072B2","#56B4E9", "#D55E00","#0072B2" , "#000000")
 ggplot(paralog.numbers, aes(y=Freq, x=Var1, fill=Var1)) + scale_fill_manual(values=cbbPalette) +
   geom_bar(position="dodge", stat="identity")+theme_classic()+theme(axis.text=element_text(size=14))
+ggplot(full.subset, aes(identity, fill = paralog)) + geom_histogram( binwidth=1) + scale_fill_manual(values=cbbPalette) +
+  theme_classic()+theme(axis.text=element_text(size=12))
 #+ theme(legend.text=element_text(size=12))
-
+ggplot(full.subset, aes(identity, fill = paralog)) + geom_histogram( binwidth=1)+ xlim(70,100)+ scale_fill_manual(values=cbbPalette) +
+  theme_classic()+theme(axis.text=element_text(size=12))
 
 
 table(LAsubset$paralog)
@@ -224,6 +234,12 @@ pal <- c('green', 'purple', 'blue', 'yellow', 'orange', 'red')
 png('tables/paralog_count_all_filtered.png')
 barplot(paralog.nums$len.paralogtypes~paralog.nums$paralog.types, col=pal)
 dev.off()
+
+
+### Looking at all L-L paralogs (in filtered list)
+#1. to look at how many L-L paralogs there are with no other paralogs
+#2. to look at whether there is evidence for two distinct L chromosomes (maybe could also look at how many non L_L paralogs have a og_freq>1)
+
 
 #Now I want to see how many it takes out if I get rid of the paralogs that hit to dif genes on the same contig
 
@@ -268,9 +284,8 @@ barplot(paralog.nums$len.paralogtypes~paralog.nums$paralog.types, col=pal)
 dev.off()
 #filter_paralog_cov_tab_difscf[filter_paralog_cov_tab_difscf$scf_gene1==filter_paralog_cov_tab_difscf$scf_gene2, ]
 
-### Looking at all L-L paralogs (in filtered list)
-#1. to look at how many L-L paralogs there are with no other paralogs
-#2. to look at whether there is evidence for two distinct L chromosomes (maybe could also look at how many non L_L paralogs have a og_freq>1)
+
+
 
 LL_paralogs<-filter_paralog_cov_tab_difscf[filter_paralog_cov_tab_difscf$assignment_gene1=="L", ]
 LL_paralogs<-LL_paralogs[LL_paralogs$assignment_gene2=="L", ]
@@ -288,63 +303,85 @@ hist(highcov_L, col = c("#999999"), breaks = 1000, xlim=c(0,80), ylim = c(0,50))
 hist(lowcov_L, col = rgb(0.90,0.62,0, alpha = 0.7), breaks=100, xlim=c(0,100),add = T)
 hist(highcov_L- lowcov_L, breaks = 2000, xlim = c(0,30))
 ###note: there are a few with a cov greater than 200, look at those
-rgb(0.83,0.36,0, alpha = 0.8)
+
 table(LL_paralogs$og_freq1)
 table(LL_paralogs$og_freq2)
 #looking at genes with really high cov levels
 #LL_paralogs[LL_paralogs$meancov_gene1>100, ]
+
+##below here I'm filtering only L genes with a reasonable cov based on assembly <50, and looking at the hist of these pairs
+LL_paralogs_cov50<-LL_paralogs[LL_paralogs$meancov_gene1<50, ]
+LL_paralogs_cov50<-LL_paralogs_cov50[LL_paralogs_cov50$meancov_gene2<50, ]
+#> dim(LL_paralogs_cov50)[1] 328  20
+
+lowcov_L <- apply(LL_paralogs_cov50[,c(17,18)], 1, min)
+highcov_L <- apply(LL_paralogs_cov50[,c(17,18)], 1, max)
+
+cbbPalette <- c("#E69F00", "#0072B2")
+hist(highcov_L, col = c("#D55E00"), breaks = 30, xlim=c(0,60), ylim = c(0,50), xlab="Gene Coverage", cex.lab=1.2)
+hist(lowcov_L, col = rgb(0.90,0.62,0, alpha = 0.65), breaks=30, xlim=c(0,100),add = T)
+
+#hist(highcov_L, col = rgb(0.80,0.40,0, alpha = 0.8), breaks = 30, xlim=c(0,60), ylim = c(0,50))
+#hist(lowcov_L, col = rgb(0.95,0.9,0.25, alpha = 0.7), breaks=30, xlim=c(0,100),add = T)
+
+
+#> mean(highcov_L)[1] 30.34548, > mean(lowcov_L)[1] 25.38722
+#> sd(highcov_L)[1] 3.752866,   > sd(lowcov_L)[1] 3.576065
+#problem is that there needs to be a reason to set the cov values to a certain amount max
+
+
+
+
+
+
 
 ### ok, so I've decided for now that I'm going to filter based on the relative length of genes involved in the blast hit (2X) and the proportion of each gene that the alignment covers (70%)
 #### and then I'll set the og group freq's afterwards (since the point of filtering is only to get reliable alignments)
 
 #### now I'm going to try to figure out how many genes are involved in each OG group and how that compares with the og freq (i.e. will give an indication of whether there are some genes in the group that don't blast to each other)
 
-filter_paralog_cov_tab
+#filter_paralog_cov_tab
+#filtering above paralogs so we only have those assigned as L, X, or A (not c or NA ones)
+#final_filtered_paralogs <- filter_paralog_cov_tab[(filter_paralog_cov_tab$assignment_gene1, filter_paralog_cov_tab$assignment_gene2) %in% c('LA', 'AL'), 'identity']
+final_filtered_paralogs <- filter_paralog_cov_tab[ which( filter_paralog_cov_tab$assignment_gene1=="A" | filter_paralog_cov_tab$assignment_gene1=="L" | filter_paralog_cov_tab$assignment_gene1=="X") , ]
+final_filtered_paralogs <- final_filtered_paralogs[ which( final_filtered_paralogs$assignment_gene2=="A" | final_filtered_paralogs$assignment_gene2=="L" | final_filtered_paralogs$assignment_gene2=="X") , ]
+#dim(final_filtered_paralogs)2210   21
+#dim(filter_paralog_cov_tab)2707   21
+final_filtered_paralogs_difscf<-final_filtered_paralogs[final_filtered_paralogs$scf_gene1!=final_filtered_paralogs$scf_gene2, ]
+#> dim(final_filtered_paralogs_difscf)[1] 1983   20
 
-gene.og<-filter_paralog_cov_tab[, c(1,2)]
-gene.og2<-filter_paralog_cov_tab[, c(1,3)]
-
+gene.og<-final_filtered_paralogs_difscf[, c(1,2)]
+gene.og2<-final_filtered_paralogs_difscf[, c(1,3)]
 colnames(gene.og)[2] <- 'gene'
 colnames(gene.og2)[2] <- 'gene'
+#getting the number of genes in each og reciprocal blast search (some can be there twice)
 gene.og<-rbind(gene.og,gene.og2)
-gene.og<-unique(gene.og)
 og.gene.num<-table(gene.og$og)
 og.gene.num<-as.data.frame(og.gene.num)
-filter_paralog_cov_tab<-merge(filter_paralog_cov_tab , og.gene.num ,by.x="og",by.y = "Var1")
-colnames(filter_paralog_cov_tab)[20]<-'genes.paralog.group'
+colnames(og.gene.num)[1] <- 'og'
+colnames(og.gene.num)[2] <- 'total.genes'
+#getting the number of genes in each og group (each gene can only be there once)
+gene.og1<-unique(gene.og)
+og.gene.num1<-table(gene.og1$og)
+og.gene.num1<-as.data.frame(og.gene.num1)
+colnames(og.gene.num1)[1] <- 'og'
+colnames(og.gene.num1)[2] <- 'unique.genes'
 
-og.group.filt<-filter_paralog_cov_tab[, c(1,19,20)]
-colnames(og.group.filt)[3] <- 'genes'
-og.group.filt$expected_links = sapply(og.group.filt$genes, function(x) { ncol(combn(x, 2))} )
-og.group.filt1<-og.group.filt[og.group.filt$og_freq2 == og.group.filt$expected_links, ]
-table(og.group.filt1$genes) 
-perfect.og<-unique(og.group.filt1)
-perfect.og.tab<-merge(filter_paralog_cov_tab , perfect.og ,by.x="og",by.y = "og")
+og.group.summary<-merge(og.gene.num , og.gene.num1 ,by.x="og",by.y = "og")
 
-########### I want to see whether the numbers are a lot different if I don't filter the hits (i.e. if I'm losing perfect paralog groups by filtering)
+##filtering so I get only total genes=6 and unique genes=3 
+#(I think that should give me just perfect pairs with 6 genes)
+paralog.3gene<-og.group.summary[og.group.summary$total.genes==6,]
+paralog.3gene1<-paralog.3gene[paralog.3gene$unique.genes==3,]
+##ok, so this is the same answer I got the first time but this time at least the code works again
+##code works until here, don't run below
+#If I want more info on paralog with 3 genes I need to pull them out of the full list
+para.3pairs<-merge(paralog.3gene1, final_filtered_paralogs, by.x="og",by.y = "og")
+##ok, there is a problem with this list, it includes all NA and c assignments, need to take them out first)
+##also need to take out ones where the node for the query and subject are the same
+#> dim(para.3pairs) 234  23
+#> dim(para.3pairs) [1] 183  22 (after filtering paralogs on same contig)
+para.3pairs<-para.3pairs[, c(1:13,19,20)]
 
-gene.og_unf<-paralog_cov_tab[, c(1,3)]
-gene.og2_unf<-paralog_cov_tab[, c(2,3)]
+#histogram of types of paralogs
 
-colnames(gene.og_unf)[1] <- 'gene'
-colnames(gene.og2_unf)[1] <- 'gene'
-gene.og_unf<-rbind(gene.og_unf,gene.og2_unf)
-gene.og_unf<-unique(gene.og_unf)
-og.gene.num_unf<-table(gene.og_unf$og)
-og.gene.num_unf<-as.data.frame(og.gene.num_unf)
-paralog_cov_tab_unf<-merge(paralog_cov_tab , og.gene.num_unf ,by.x="og",by.y = "Var1")
-
-
-og.group.filt_unf<-paralog_cov_tab_unf[, c(1,16,19)]
-colnames(og.group.filt_unf)[3] <- 'genes'
-og.group.filt_unf$expected_links = sapply(og.group.filt_unf$genes, function(x) { ncol(combn(x, 2))} )
-og.group.filt_unf<-og.group.filt_unf[og.group.filt_unf$og_freq1 == og.group.filt_unf$expected_links, ]
-table(og.group.filt_unf$genes)  
-
-#doing some data exploration
-paralog.3gene<-perfect.og.tab[perfect.og.tab$genes==3,]
-
-#identities_of_AAAs <- filter_paralog_cov_tab_difscf[paste0(filter_paralog_cov_tab_difscf$assignment_gene1, filter_paralog_cov_tab_difscf$assignment_gene2) %in% c('AX', 'XA'), 'identity']
-
-
-   
