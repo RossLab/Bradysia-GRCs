@@ -3,3 +3,8 @@ figures
 logs
 .DS_Store
 .Rhistory
+*.docx
+*.pdf
+*.xlsx
+*.png
+tables
