@@ -194,7 +194,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 20997at50557	NODE_15994:1-5245	296	X	X	MyTH4 domain
 21101at50557	NODE_4109:667-4395	780	A	A-L	Eukaryotic translation initiation factor 3 subunit C
 21101at50557	NODE_132:48377-57878	785	L	A-L	Eukaryotic translation initiation factor 3 subunit C
-21322at50557	NODE_1053:42144-47561	228	X	X	segmentation protein cap'n'collar isoform X1
+21322at50557	NODE_1053:42144-47561	228	X	X	segmentation protein capncollar isoform X1
 21580at50557	NODE_1375:18382-26094	605	NA	L-L	Exocyst complex component
 21580at50557	NODE_899:10908-15238	605	L	L-L	Exocyst complex component
 21580at50557	NODE_13813:1844-4493	634	L	L-L	Exocyst complex component
@@ -517,13 +517,13 @@ busco_id	scf	length	assignment	assignment_group	fction
 47269at50557	NODE_1556:1-15384	328	A	A	COP9 signalosome complex subunit 3
 47270at50557	NODE_2749:8672-15295	348	A	A	N-acetylglucosaminyl-phosphatidylinositol biosynthetic protein
 47330at50557	NODE_23645:1259-3575	380	X	X	chondroitin sulfate synthase 2
-47489at50557	NODE_890:27739-38877	485	L	L	tRNA-dihydrouridine(20) synthase 
+47489at50557	NODE_890:27739-38877	485	L	L	tRNA-dihydrouridine(20) synthase
 47520at50557	NODE_1393:25099-30041	240	L	L-X	Zinc finger, CCCH-type
 47520at50557	NODE_9654:18-10585	240	X	L-X	Zinc finger, CCCH-type
 48053at50557	NODE_11742:6440-8685	415	A	A	pre-mRNA-processing factor 19
 48126at50557	NODE_40:96493-97663	207	L	L	rRNA adenine N(6)-methyltransferase
-48331at50557	NODE_3625:1708-4234	376	X	L-X	pyruvate dehydrogenase 
-48331at50557	NODE_851:38464-40494	375	L	L-X	pyruvate dehydrogenase 
+48331at50557	NODE_3625:1708-4234	376	X	L-X	pyruvate dehydrogenase
+48331at50557	NODE_851:38464-40494	375	L	L-X	pyruvate dehydrogenase
 48378at50557	NODE_6030:10483-15745	376	X	X	kanadaptin
 48450at50557	NODE_1947:613-10638	392	A	A	Eukaryotic translation initiation factor 3 subunit L
 48837at50557	NODE_939:2102-6425	364	A	A	PDZ domain
@@ -644,7 +644,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 57791at50557	NODE_11460:1617-8865	450	A	A	probable ATP-dependent RNA helicase Dbp73D
 57812at50557	NODE_3917:1314-17225	347	X	X	Zinc finger C2H2 superfamily
 57980at50557	NODE_27830:1-2735	204	A	A	phosphorylase b kinase gamma catalytic chain, skeletal muscle/heart isoform isoform X1
-57983at50557	NODE_41017:1-1350	247	A	A	adenosine 3'-phospho 5'-phosphosulfate transporter 1
+57983at50557	NODE_41017:1-1350	247	A	A	adenosine 3-phospho 5-phosphosulfate transporter 1
 58098at50557	NODE_9593:3936-8126	322	L	L	probable serine incorporator isoform X1
 58189at50557	NODE_14686:971-5421	170	A	A	Uncharacterized protein, isoform A
 58203at50557	NODE_22984:618-2478	337	A	A-L	26S proteasome regulatory subunit 7
@@ -707,8 +707,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 63135at50557	NODE_17584:1586-4435	356	A	A	FAS-associated factor 2
 63395at50557	NODE_35393:1-1315	185	A	A-L	cyclin-dependent kinase 8
 63395at50557	NODE_28368:705-2731	206	L	A-L	cyclin-dependent kinase 8
-63655at50557	NODE_738:38442-47073	310	X	L-X	RNA 3'-terminal phosphate cyclase
-63655at50557	NODE_10754:908-2645	313	L	L-X	RNA 3'-terminal phosphate cyclase
+63655at50557	NODE_738:38442-47073	310	X	L-X	RNA 3-terminal phosphate cyclase
+63655at50557	NODE_10754:908-2645	313	L	L-X	RNA 3-terminal phosphate cyclase
 63767at50557	NODE_146:18099-20462	171	L	A-L	ubiquitin-like domain-containing CTD phosphatase 1
 63767at50557	NODE_4666:880-5486	174	A	A-L	ubiquitin-like domain-containing CTD phosphatase 1
 63888at50557	NODE_165:12221-14059	280	L	L	ankyrin repeat and MYND domain-containing protein 2
@@ -799,8 +799,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 69725at50557	NODE_1470:22107-26999	342	X	L-X	docking protein 1
 69725at50557	NODE_7364:935-11217	256	L	L-X	docking protein 1
 69729at50557	NODE_3059:17671-20121	403	A	A	uncharacterized protein C18orf8
-69855at50557	NODE_8413:4466-7179	414	L	A-L	tRNA-dihydrouridine(47) synthase 
-69855at50557	NODE_18327:152-2052	376	A	A-L	tRNA-dihydrouridine(47) synthase 
+69855at50557	NODE_8413:4466-7179	414	L	A-L	tRNA-dihydrouridine(47) synthase
+69855at50557	NODE_18327:152-2052	376	A	A-L	tRNA-dihydrouridine(47) synthase
 69869at50557	NODE_6862:3297-12059	243	A	A	uncharacterized protein LOC105187850
 69957at50557	NODE_4355:10618-13686	358	X	X	CDP-diacylglycerol--glycerol-3-phosphate 3-phosphatidyltransferase
 70047at50557	NODE_33093:1-1325	204	A	A	26S proteasome non-ATPase regulatory subunit 11
@@ -1053,7 +1053,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 87518at50557	NODE_2395:16363-20499	162	L	A-L	Repressor of RNA polymerase III transcription MAF1
 87518at50557	NODE_12533:4469-7005	157	A	A-L	Repressor of RNA polymerase III transcription MAF1
 87565at50557	NODE_620:16545-22156	305	X	X	Palmitoyltransferase
-87712at50557	NODE_35860:32-1803	307	A	A	NADH dehydrogenase 
+87712at50557	NODE_35860:32-1803	307	A	A	NADH dehydrogenase
 87750at50557	NODE_1779:4536-8697	580	A	A	golgin subfamily A member 2
 87828at50557	NODE_377:12098-13587	239	L	L-X	Sin3 histone deacetylase corepressor complex component SDS3
 87828at50557	NODE_16954:4047-5325	232	X	L-X	Sin3 histone deacetylase corepressor complex component SDS3
@@ -1098,8 +1098,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 90358at50557	NODE_260:69156-70770	272	L	A-L	angio-associated migratory cell protein
 90358at50557	NODE_28479:290-2439	274	A	A-L	angio-associated migratory cell protein
 90369at50557	NODE_22068:1-4035	280	A	A	Iron hydrogenase
-90505at50557	NODE_1777:24619-29252	356	L	L-L	serine/threonine-protein phosphatase 2A regulatory subunit B'' subunit gamma-like
-90505at50557	NODE_1912:17815-24618	357	L	L-L	serine/threonine-protein phosphatase 2A regulatory subunit B'' subunit gamma-like
+90505at50557	NODE_1777:24619-29252	356	L	L-L	serine/threonine-protein phosphatase 2A regulatory subunit B subunit gamma-like
+90505at50557	NODE_1912:17815-24618	357	L	L-L	serine/threonine-protein phosphatase 2A regulatory subunit B subunit gamma-like
 90549at50557	NODE_93:62364-63791	208	L	A-L	Carbonic anhydrase
 90549at50557	NODE_1193:17018-21582	208	A	A-L	Carbonic anhydrase
 90640at50557	NODE_11070:5596-8990	212	A	A	28S ribosomal protein S22, mitochondrial
@@ -1163,8 +1163,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 94500at50557	NODE_8534:982-2408	189	X	L-X	tRNA methyltransferase 10 homolog A
 94520at50557	NODE_10528:780-9863	253	L	A-L	general transcription factor IIE subunit 1
 94520at50557	NODE_4352:8376-12711	277	A	A-L	general transcription factor IIE subunit 1
-94582at50557	NODE_10329:6486-9475	314	A	A-L	Uncharacterized protein  
-94582at50557	NODE_676:14526-28631	332	L	A-L	Uncharacterized protein  
+94582at50557	NODE_10329:6486-9475	314	A	A-L	Uncharacterized protein
+94582at50557	NODE_676:14526-28631	332	L	A-L	Uncharacterized protein
 94759at50557	NODE_733:28548-31429	169	X	X	39S ribosomal protein L9, mitochondrial
 94916at50557	NODE_9299:2328-3281	237	A	A-A-L	Ribosomal protein L2
 94916at50557	NODE_30468:1-1695	237	A	A-A-L	Ribosomal protein L2
@@ -1180,7 +1180,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 95598at50557	NODE_10839:3758-5645	185	A	A	Pyridoxal phosphate homeostasis protein
 95606at50557	NODE_23599:1-2655	224	X	X	beta-1,4-galactosyltransferase 7
 95758at50557	NODE_2061:30865-33940	206	A	A	Ubiquitin thioesterase
-95945at50557	NODE_12618:507-1878	272	A	A	NADH dehydrogenase 
+95945at50557	NODE_12618:507-1878	272	A	A	NADH dehydrogenase
 95953at50557	NODE_4488:456-10243	532	A	A	dynein assembly factor 5, axonemal
 96054at50557	NODE_209:19132-21985	208	L	A-L	UPF0568 protein C14orf166 homolog
 96054at50557	NODE_1993:33781-34810	167	A	A-L	UPF0568 protein C14orf166 homolog
@@ -1303,7 +1303,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 102531at50557	NODE_68:33103-41979	88	L	L	Cystine-knot cytokine
 102539at50557	NODE_1270:33693-41591	177	A	A-L	Cleavage and polyadenylation specificity factor subunit 5
 102539at50557	NODE_481:53119-59693	177	L	A-L	Cleavage and polyadenylation specificity factor subunit 5
-102553at50557	NODE_6810:286-2545	198	A	A	probable U2 small nuclear ribonucleoprotein A'
+102553at50557	NODE_6810:286-2545	198	A	A	probable U2 small nuclear ribonucleoprotein A
 102560at50557	NODE_3256:9788-12799	203	X	X	Mediator of RNA polymerase II transcription subunit 8
 102616at50557	NODE_15785:1169-5963	60	A	A	PDZ domain-containing protein GIPC3
 102704at50557	NODE_4632:4901-9279	217	X	L-X	diphthine methyl ester synthase
@@ -1428,9 +1428,9 @@ busco_id	scf	length	assignment	assignment_group	fction
 110393at50557	NODE_3915:6169-11964	114	L	L	Conserved insect protein
 110423at50557	NODE_3296:8050-15467	134	L	L	tRNA-splicing endonuclease subunit Sen34
 110431at50557	NODE_45:86729-89183	139	L	L	vacuolar protein sorting-associated protein 37B
-110550at50557	NODE_7679:806-5515	271	L	A-L-L	NADH dehydrogenase 
-110550at50557	NODE_1546:16475-18431	275	L	A-L-L	NADH dehydrogenase 
-110550at50557	NODE_9374:3601-10882	270	A	A-L-L	NADH dehydrogenase 
+110550at50557	NODE_7679:806-5515	271	L	A-L-L	NADH dehydrogenase
+110550at50557	NODE_1546:16475-18431	275	L	A-L-L	NADH dehydrogenase
+110550at50557	NODE_9374:3601-10882	270	A	A-L-L	NADH dehydrogenase
 110603at50557	NODE_939:31447-34280	171	A	A-L-L	signal recognition particle receptor subunit beta
 110603at50557	NODE_248:14123-18430	163	L	A-L-L	signal recognition particle receptor subunit beta
 110603at50557	NODE_1640:1514-10442	171	L	A-L-L	signal recognition particle receptor subunit beta
@@ -1656,8 +1656,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 124426at50557	NODE_209:58648-59521	121	L	A-L-X	protein BUD31 homolog
 124426at50557	NODE_357:63907-70822	121	X	A-L-X	protein BUD31 homolog
 124426at50557	NODE_717:54186-55821	121	A	A-L-X	protein BUD31 homolog
-124433at50557	NODE_14821:3916-5921	135	A	A-L	retinal rod rhodopsin-sensitive cGMP 3',5'-cyclic phosphodiesterase subunit delta
-124433at50557	NODE_726:10276-11529	136	L	A-L	retinal rod rhodopsin-sensitive cGMP 3',5'-cyclic phosphodiesterase subunit delta
+124433at50557	NODE_14821:3916-5921	135	A	A-L	retinal rod rhodopsin-sensitive cGMP 3,5-cyclic phosphodiesterase subunit delta
+124433at50557	NODE_726:10276-11529	136	L	A-L	retinal rod rhodopsin-sensitive cGMP 3,5-cyclic phosphodiesterase subunit delta
 124486at50557	NODE_1411:3776-5021	144	X	L-X	39S ribosomal protein L40, mitochondrial
 124486at50557	NODE_2023:3836-6622	141	L	L-X	39S ribosomal protein L40, mitochondrial
 124557at50557	NODE_6535:4606-6625	236	A	A	Protein-S-isoprenylcysteine O-methyltransferase
@@ -1777,7 +1777,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 131659at50557	NODE_1320:31843-33425	129	L	L-L-L	putative oligosaccharyltransferase complex subunit CG9662
 131659at50557	NODE_12444:1317-2175	115	L	L-L-L	putative oligosaccharyltransferase complex subunit CG9662
 131659at50557	NODE_1672:21176-22677	113	L	L-L-L	putative oligosaccharyltransferase complex subunit CG9662
-131682at50557	NODE_40376:1-1142	118	A	A	NADH dehydrogenase 
+131682at50557	NODE_40376:1-1142	118	A	A	NADH dehydrogenase
 131759at50557	NODE_3455:15629-16220	122	X	L-X	protein cornichon
 131759at50557	NODE_1004:46200-47053	122	L	L-X	protein cornichon
 131847at50557	NODE_21467:2566-3672	182	A	A	coiled-coil domain-containing protein 25
@@ -1795,8 +1795,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 132354at50557	NODE_11463:1416-2975	127	L	L	Ribosomal protein S11
 132612at50557	NODE_1633:17561-18759	111	L	A-L	Histone deacetylase complex subunit SAP18
 132612at50557	NODE_32697:207-1385	111	A	A-L	Histone deacetylase complex subunit SAP18
-132615at50557	NODE_2712:13057-14383	122	L	A-L	NADH dehydrogenase 
-132615at50557	NODE_4130:3486-8450	116	A	A-L	NADH dehydrogenase 
+132615at50557	NODE_2712:13057-14383	122	L	A-L	NADH dehydrogenase
+132615at50557	NODE_4130:3486-8450	116	A	A-L	NADH dehydrogenase
 132625at50557	NODE_28771:386-2005	123	X	X	60S ribosomal protein L14
 132643at50557	NODE_11699:3536-6918	91	L	L	RGS domain
 132744at50557	NODE_1113:31991-35321	93	L	A-L	uncharacterized protein C45G9.7
@@ -1922,8 +1922,8 @@ busco_id	scf	length	assignment	assignment_group	fction
 142454at50557	NODE_2533:24622-25360	111	A	A	39S ribosomal protein L51, mitochondrial
 142467at50557	NODE_3380:484-1200	72	A	A-L	39S ribosomal protein L30, mitochondrial
 142467at50557	NODE_189:74323-76090	66	L	A-L	39S ribosomal protein L30, mitochondrial
-142607at50557	NODE_39239:761-1312	74	A	A-L	NADH dehydrogenase 
-142607at50557	NODE_2051:2825-3529	76	L	A-L	NADH dehydrogenase 
+142607at50557	NODE_39239:761-1312	74	A	A-L	NADH dehydrogenase
+142607at50557	NODE_2051:2825-3529	76	L	A-L	NADH dehydrogenase
 142782at50557	NODE_15237:1636-2965	118	A	A-L	40S ribosomal protein S24
 142782at50557	NODE_1681:13402-18346	117	L	A-L	40S ribosomal protein S24
 142802at50557	NODE_3385:2540-4725	91	NA	A	signal recognition particle 19 kDa protein
@@ -1960,7 +1960,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 146597at50557	NODE_413:13576-14413	164	L	A-L	endoplasmic reticulum resident protein 29
 146677at50557	NODE_1107:10886-11954	100	L	A-L	mitochondrial import inner membrane translocase subunit TIM14
 146677at50557	NODE_8576:6596-7254	100	A	A-L	mitochondrial import inner membrane translocase subunit TIM14
-146725at50557	NODE_17215:4759-5535	115	A	A	NADH dehydrogenase 
+146725at50557	NODE_17215:4759-5535	115	A	A	NADH dehydrogenase
 146969at50557	NODE_5393:13864-16162	99	A	A	uncharacterized protein C20orf24 homolog
 147055at50557	NODE_593:29882-31058	128	A	A	39S ribosomal protein L12, mitochondrial
 147143at50557	NODE_1027:13226-13967	75	L	A-L-Lc	40S ribosomal protein S21
@@ -1977,7 +1977,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 148274at50557	NODE_379:51007-56047	121	X	X	UPF0692 protein CG33108
 148638at50557	NODE_9299:1-1025	96	A	A-L	Ribonuclease P/MRP protein subunit POP5
 148638at50557	NODE_2013:23501-24513	93	L	A-L	Ribonuclease P/MRP protein subunit POP5
-148685at50557	NODE_45984:1-926	66	A	A	NADH dehydrogenase 
+148685at50557	NODE_45984:1-926	66	A	A	NADH dehydrogenase
 149102at50557	NODE_2819:10531-11433	92	A	A	28S ribosomal protein S33, mitochondrial
 149193at50557	NODE_3573:22213-23707	78	A	A-L	U6 snRNA-associated Sm-like protein LSm3
 149193at50557	NODE_10:99101-100012	78	L	A-L	U6 snRNA-associated Sm-like protein LSm3
@@ -1995,7 +1995,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 150643at50557	NODE_23705:266-693	70	A	A-L	U6 snRNA-associated Sm-like protein LSm6
 150643at50557	NODE_290:12453-14649	70	L	A-L	U6 snRNA-associated Sm-like protein LSm6
 150919at50557	NODE_6316:1284-10435	47	A	A	protein drumstick isoform X1
-151161at50557	NODE_10543:2520-6023	68	A	A	NADH dehydrogenase 
+151161at50557	NODE_10543:2520-6023	68	A	A	NADH dehydrogenase
 151618at50557	NODE_348:21249-22630	123	A	A-L	39S ribosomal protein L50, mitochondrial
 151618at50557	NODE_1159:14548-15624	113	L	A-L	39S ribosomal protein L50, mitochondrial
 151709at50557	NODE_93:57762-59415	107	L	A-L	programmed cell death protein 5
@@ -2005,7 +2005,7 @@ busco_id	scf	length	assignment	assignment_group	fction
 153191at50557	NODE_217:81285-85840	57	A	A	Cytochrome b-c1 complex subunit 6
 153322at50557	NODE_2482:27466-28493	95	A	A	prefoldin subunit 1
 153379at50557	NODE_1950:6516-8480	57	L	L	transmembrane inner ear expressed protein
-153723at50557	NODE_21358:2-1063	68	A	A	NADH dehydrogenase 
+153723at50557	NODE_21358:2-1063	68	A	A	NADH dehydrogenase
 155632at50557	NODE_2315:20868-21654	103	A	A	Prefoldin subunit 4
-155937at50557	NODE_9696:7670-10516	63	A	A	NADH dehydrogenase 
+155937at50557	NODE_9696:7670-10516	63	A	A	NADH dehydrogenase
 158026at50557	NODE_2584:6627-13498	73	X	X	death-associated protein 1

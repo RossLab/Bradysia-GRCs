@@ -1,90 +1,80 @@
 
-library(hexbin)
-
 overlap_tab <- read.table('data/scaffold_assignment_tab_full.tsv', header = T, stringsAsFactors = F)
 
 overlap_tab$logdif2[is.infinite(overlap_tab$logdif2)] <- 20
 
-# # Create hexbin object and plot
-h <- hexbin(data.frame(overlap_tab$L_score, overlap_tab$logdif2))
 
-png('figures/coverage_L_scores.png')
-  plot(h, xlab = "L score", ylab = "log2 coverage difference", main = 'density of coverage and kmer method')
+# to Illumina spades assembly
+sr_kmers <- read.table("data/L-X-A-kmers/mapping/table_of_mapped_kmers_spades.tsv", header = T, sep = '\t', stringsAsFactors = F)
+sr_kmers$len <- sapply(strsplit(sr_kmers$id, '_'), function(x){ as.integer(x[4]) } )
+
+# table_of_mapped_kmers.Lcandidates.tsv
+
+expand_table <- function(mapped_kmers){
+	mapped_kmers$total <- rowSums(mapped_kmers[,c(2,3,4)])
+	mapped_kmers$max <- apply(mapped_kmers[,c(2,3,4)], 1, max)
+	mapped_kmers$score <- mapped_kmers$max / mapped_kmers$len
+	mapped_kmers$density <- mapped_kmers$total / mapped_kmers$len
+	mapped_kmers$naive_assignment <- apply(mapped_kmers[,c(2,3,4)], 1, function(x){ c('L', 'X', 'A')[which.max(x)] })
+	mapped_kmers
+}
+
+sr_kmers <- expand_table(sr_kmers)
+
+add_one_ch <- function(mapped_kmers, ch = 'L', col = 'red', breaks = 120, feature = 'score'){
+	hist(mapped_kmers[mapped_kmers$naive_assignment == ch, feature], breaks = breaks, add = T, col = col, freq = T)
+}
+
+pal <- c(rgb(229, 158, 37, maxColorValue = 255), rgb(32, 122, 95, maxColorValue = 255), rgb(108, 178, 216, maxColorValue = 255))
+
+per_ch_hist <- function(mapped_kmers, feature, main = NA, xlim){
+	hist(mapped_kmers[,feature], breaks = 120, freq = T, main = main, xlim = xlim, xlab = feature)
+	add_one_ch(mapped_kmers, 'L', pal[1], feature = feature)
+	add_one_ch(mapped_kmers, 'A', pal[2], feature = feature)
+	add_one_ch(mapped_kmers, 'X', pal[3], feature = feature)
+	legend('topleft', col = pal, pch = 20, c('GRC', 'A', 'X'), bty = 'n', cex = 1.4)
+}
+
+### Illumina Scores per naive assigments
+
+png('figures/histograms_of_scores_per_group_IL.png')
+	per_ch_hist(sr_kmers, 'score', 'Illumina max(L, X, A) / scf len', c(0, 1))
 dev.off()
 
-
-X_subset <- overlap_tab$logdif2 > -1 & overlap_tab$logdif2 < 2
-h_X <- hexbin(data.frame(overlap_tab$X_score[X_subset], overlap_tab$logdif2[X_subset]))
-
-png('figures/coverage_X_scores.png')
-  plot(h_X, xlab = "X score", ylab = "log2 coverage difference", main = 'density of coverage and kmer method')
-dev.off()
-
-h_A <- hexbin(data.frame(overlap_tab$A_score[X_subset], overlap_tab$logdif2[X_subset]))
-
-png('figures/coverage_A_scores.png')
-  plot(h_A, xlab = "A score", ylab = "log2 coverage difference", main = 'density of coverage and kmer method')
-dev.off()
-
-# log of the densities. The plot handles only integers, so I add 1 to all non-zero values to be at least 1 on the plot (otherwise log2(1) would round to 0)
-# h@count <- log2(h@count + (h@count > 0))
-# png('figures/coverage_kmers_density_log.png')
-#   plot(h, xlab = "L score", ylab = "log2 coverage difference", main = 'log density of coverage and kmer method')
+# png('figures/histograms_of_kmer_densities_per_group_IL.png')
+# 	per_ch_hist(sr_kmers, 'density', 'Illumina sum(L, X, A) / scf len', c(0, 1))
 # dev.off()
 
-# L_kmer_candidates <- overlap_tab[overlap_tab$L_score > 0.8, c('ID', 'len', 'L_score', 'logdif2')]
-# coverage_candidates <- overlap_tab[overlap_tab$logdif2 > 2, c('ID', 'len', 'L_score', 'logdif2')]
-#
-# shared_candidates <- merge(coverage_candidates, L_kmer_candidates)
-# kmer_specific_candidates <- L_kmer_candidates[!L_kmer_candidates$ID %in% coverage_candidates$ID,]
-# coverage_specific_candidates <- coverage_candidates[!coverage_candidates$ID %in% L_kmer_candidates$ID,]
-#
-# sum(kmer_specific_candidates[kmer_specific_candidates$len > 50000, 'len'])
-# sum(kmer_specific_candidates[kmer_specific_candidates$len > 10000, 'len'])
-#
-# sum(coverage_specific_candidates[coverage_specific_candidates$len > 50000, 'len'])
-# sum(coverage_specific_candidates[coverage_specific_candidates$len > 10000, 'len'])
-#
-# row.names(overlap_tab) <- overlap_tab$ID
-# overlap_tab[coverage_specific_candidates[coverage_specific_candidates$len > 50000, 'ID'],]
-# head(overlap_tab[kmer_specific_candidates[kmer_specific_candidates$len > 50000, 'ID'],], 10)
+###
 
-# TESTING THE COVERAGE RATIO IDEA, it's kind of messy and it's hard to incorporate the density there explicitly
-# overlap_tab$log2diff_kmer_ratio <- log2(overlap_tab$L / (overlap_tab$A + overlap_tab$X) * (overlap_tab$L_score + overlap_tab$AX_score))
-# overlap_tab$log2diff_kmer_ratio[is.infinite(overlap_tab$log2diff_kmer_ratio)] <- 20
-# overlap_tab$log2diff_kmer_ratio_normalized <- overlap_tab$log2diff_kmer_ratio
-#
-# h <- hexbin(data.frame(overlap_tab$log2diff_kmer_ratio_normalized, overlap_tab$logdif2))
-# plot(h)
-#
-# h@count <- log2(h@count + (h@count > 0))
-# plot(h)
-#
-# h <- hexbin(data.frame(overlap_tab$log2diff_kmer_ratio * overlap_tab$density, overlap_tab$L_score))
-# plot(h)
+add_points_of_one_ch <- function(mapped_kmers, ch = 'L', col = 'red', feature1 = 'len', feature2 = 'score'){
+	if ( feature1 == 'len') {
+		f1 <- log10(mapped_kmers[mapped_kmers$naive_assignment == ch, 'len'])
+	} else {
+		f1 <- mapped_kmers[mapped_kmers$naive_assignment == ch, feature1]
+	}
 
-# h@count <- log2(h@count + (h@count > 0))
-# plot(h)
+	f2 <- mapped_kmers[mapped_kmers$naive_assignment == ch, feature2]
+	points(f1 ~ f2, pch = 20, col = col)
+}
 
-# hist(abs(log2(overlap_tab$L_score)) * overlap_tab$logdif2, breaks = 16000, xlim = c(-5, 5))
+add.alpha <- function(cols, alpha) rgb(t(col2rgb(cols)/255), alpha = alpha)
+pal <- add.alpha(pal, 0.3)
 
+plot_dot_plot <- function(mapped_kmers, feature1, feature2){
+	if ( feature1 == 'len') {
+		f1 <- log10(mapped_kmers[, 'len'])
+	} else {
+		f1 <- mapped_kmers[, feature1]
+	}
+	plot(f1 ~ mapped_kmers[,feature2], pch = 20, cex = 1.2, ylab = feature1, xlab = feature2)
+	add_points_of_one_ch(mapped_kmers, 'L', pal[1], feature1 = feature1, feature2 = feature2)
+	add_points_of_one_ch(mapped_kmers, 'A', pal[2], feature1 = feature1, feature2 = feature2)
+	add_points_of_one_ch(mapped_kmers, 'X', pal[3], feature1 = feature1, feature2 = feature2)
+	legend('topleft', col = pal, pch = 20, c('L', 'A', 'X'), bty = 'n')
+}
 
-#### try to reconsider the normalization using number of UPPERCASE nucleotides
-#
-# scaffold_lengths <- read.table('data/genome/softmasking_per_scf.tsv', stringsAsFactors = F, header = T)
-# scaffold_lengths[scaffold_lengths$name == 'NODE_60',]
-#
-# overlap_tab$name <- sapply(overlap_tab$name, function(scf){paste(unlist(strsplit(scf, "_"))[c(1,2)], collapse = "_")})
-#
-# srss_kmers = merge(overlap_tab, scaffold_lengths)
-#
-# overlap_tab$L_smscore <- overlap_tab$L / (srss_kmers$seqlen - srss_kmers$masked)
-# overlap_tab$AX_smscore <- overlap_tab$AX / (srss_kmers$seqlen - srss_kmers$masked)
-#
-# h <- hexbin(data.frame(overlap_tab$L_smscore, overlap_tab$AX_smscore))
-# plot(h)
-#
-# plot(overlap_tab$AX_smscore ~ overlap_tab$L_smscore, xlim = c(0, 3), ylim = c(0, 3))
-
-# THIS IS A MESS
-# because plenty of kmers are actually mapping on the softmasked positions and lead to nenormous mess up
+png('figures/length_vs_score_IL.png')
+	plot_dot_plot(sr_kmers, 'len', 'score')
+# density and score are correlated
+dev.off()

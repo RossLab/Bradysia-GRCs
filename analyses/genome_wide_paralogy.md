@@ -1,9 +1,11 @@
 ### Genome wide paralogy
 
-The strategy is:
+The strategy for paralog inference is:
  - get all the transcripts
  - blast all vs all
- - extract all secondary hits
+ - extract all reciprocal secondary hits
+ - filter them by e value and alignment length
+ - anochor the 
 
 ### getting the transcripts
 

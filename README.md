@@ -1,11 +1,12 @@
+### Overview
 
-Here should be some description in future.
+*Bradysia coprophila* is a fungus gnat (fly) that carries germline restricted chromosomes (GRCs or 'L' chromosomes). We sequenced the germ tissue in *B. coprophila* and identified the GRCs using K-mer and coverage based techniques. We then compared the genes on the GRCs to those in the core genome (i.e. autosomes and X chromosome) to explore how the GRCs evolved in this species. The code in this repository was used in the analyses in this manuscript (https://doi.org/10.1101/2021.02.08.430288).
 
 #### Notes
 
 Within this repository, **L** is a synonym of **g**erm-line **r**estricted **c**hromosome (**GRC**).
 
-### Project data
+### Project data
 
 Later paths should be replaced by URLs in public reposutories.
 
@@ -48,10 +49,10 @@ This in an incomplete list, only those there are here on GitHub
 
 #### Genome wide paralogy
   - [analyses documentation](analyses/genome_wide_paralogy.md)
+  - [scripts](scripts/paralog_divergence_prelim_analysis.R)
   - associated data
   * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `data/ntgene_recip_blast_cov.tsv`
   * table with all info from paralog exploration, paralog ID, cov, type, and paralog freq after filtering based on gene/alignment length :  `data/filtered_paralog_tab.tsv`
-    - associated script `scripts/paralog_divergence_prelim_analysis.R`
     
 #### Colinearity analysis
   - associated data
