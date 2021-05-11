@@ -1,4 +1,4 @@
-input_newick = "15d_genetrees_AXscp/93746at50557.treefile"
+#input_newick = "15d_genetrees_AXscp/93746at50557.treefile"
 
 import os
 from collections import defaultdict
@@ -60,7 +60,7 @@ def tree2assigments(input_newick):
         sp = "_".join(tip.name.split('_')[:2]).rstrip("'")
         sp2node_name[sp].append(tip)
 
-    a_clade = sp2node_name[a_string]
+    a_clade = sp2node_name[a_string][0]
     last_node = path2node(tree.get_path(a_clade))
     monophy_terminal = last_node.get_terminals()
     assignment = indices2assignment(monophy_terminal)
@@ -81,16 +81,16 @@ def tree2assigments(input_newick):
     return(assignment + "\t" + str(branch_length))
 
 
-input_newick = "15d_genetrees_AXscp/93746at50557.treefile"
+#input_newick = "15d_genetrees_AXscp/93746at50557.treefile"
 
 #LL_files = [i for i in os.listdir('data/GRC_phylogenies/15b_genetrees_LL') if i.endswith('treefile')]
 #A_files = [i for i in os.listdir('15d_genetrees_AXscp/') if i.endswith('treefile')]
-A_files = [i for i in os.listdir('15d_genetrees_AXscp/93746at50557.treefile') if i.endswith('treefile')]
+A_files = [i for i in os.listdir('7_GRC_phylogenies/15d_genetrees_AXscp/93746at50557.treefile') if i.endswith('treefile')]
 
 with open('tables/A-busco-phylogenies-summary.tsv', 'w') as tab:
-    tab.write('BUSCO_id\tGRC_1\tGRC_2\tCore_genome\tGRC_1_len\tGRC_2_len\tCore_len\n')
+    tab.write('BUSCO_id\tCore_genome\tCore_len\n')
 
     for file in A_files:
         gene = file.split('.')[0]
-        input_newick = '15d_genetrees_AXscp/' + file
+        input_newick = '7_GRC_phylogenies/15d_genetrees_AXscp/' + file
         tab.write(gene + '\t' + tree2assigments(input_newick) + '\n')
