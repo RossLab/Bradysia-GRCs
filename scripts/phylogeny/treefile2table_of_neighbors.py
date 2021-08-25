@@ -77,7 +77,11 @@ def tree2assigments(input_newick):
         asn = indices2assignment(monophy_terminal)
         assignments.append(asn)
         branch_lengths.append(target_clade.branch_length)
-        confidence.append(float(last_node.name.split('/')[0]))
+        try:
+            node_conf = float(last_node.name.split('/')[0])
+        except ValueError:
+            node_conf = -1
+        confidence.append(node_conf)
 
     tree_type_str = ','.join(tree_type)
     asn_str = ','.join(assignments)
