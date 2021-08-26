@@ -94,7 +94,7 @@ input_dir = sys.argv[1]
 tree_files = [i for i in os.listdir(input_dir) if i.endswith('treefile')]
 
 # with open('tables/L-busco-phylogenies-summary.tsv', 'w') as tab:
-sys.stdout.write('BUSCI_id\ttype\tgene_tree_location\tbootstraps\tbranch_lengths\t\n')
+sys.stdout.write('BUSCO_id\ttype\tgene_tree_location\tbootstraps\tbranch_lengths\n')
 
 for file in tree_files:
     gene = file.split('.')[0]
