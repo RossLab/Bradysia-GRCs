@@ -24,7 +24,7 @@ We use two approaches, the coverage ratio of head and testes libraries and using
 - [Kmer spectra based assigment analyses](#kmer-spectra-based-assigment-analyses)
   * [Isolation of kmers](#isolation-of-kmers)
   * [actually doing it](#actually-doing-it)
-  * [Matching the kmers to assemblies](#options-1-and-2---matching-the-kmers-to-assemblies)
+  * [Matching the kmers to assemblies](#matching-the-kmers-to-assemblies)
 - [Final L assigments](#final-l-assigments)
 
 ### Coverage analysis
@@ -56,6 +56,7 @@ samtools view sample.bam | head
 ```
 
 mapping command:
+
 ```
 bwa index 10_spades2/contigs.min1kb.fasta && bwa mem -t 16 -p 10_spades2/contigs.min1kb.fasta bamfilter.head2.clc.mar29.scop.head2.vs.scop.clc.sorted.bam.InIn.fq.gz | samtools view -b - > /scratch/chodson/scop.head2.vs.spades2.bam && rsync --remove-source-files /scratch/chodson/scop.head2.vs.spades2.bam 10_spades2/ && touch 10_spades2/bwa.head.done
 
@@ -64,7 +65,7 @@ bwa mem -t 16 -p 10_spades2/contigs.min1kb.fasta bamfilter.testes.clc.mar29.scop
 
 #### 2. count mapped reads for each contig (and sorting bam files)
 
-e.x. command
+example command
 
 ```
 samtools sort -o male_sort.bam male_to_mf.bam ## sort bam

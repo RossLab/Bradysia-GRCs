@@ -3,7 +3,6 @@
 from collections import defaultdict
 import argparse
 from sys import stdout
-import uuid
 
 parser = argparse.ArgumentParser(description='Reciprocal BLAST: from blast std output 6 generates two tables of orthologs as two with reciprocal hits fulfilling specified criteria')
 parser.add_argument('blastfile', help='blast file formated as -outfmt "6 std qlen slen"')
@@ -12,9 +11,9 @@ parser.add_argument('-s', '-similarity', type = float, help='sequence similarity
 parser.add_argument('-gene_coverage', type = float, help='minimal fraction of gene to be covered to accept a link of two genes', default = 0.6)
 
 args = parser.parse_args()
-# args.blastfile = 'data/genome_wide_paralogy/genes_all_vs_all.blast'
-# args.output_pattern = 'test'
-# args.s = 60
+# args.blastfile = 'data/genome_wide_paralogy/proteins_all_vs_all.blast'
+# args.output_pattern = 'data/genome_wide_paralogy/aa_orthology_40'
+# args.s = 80
 # args.gene_coverage = 0.6
 
 class blast_std6_qlen_slen:
@@ -34,13 +33,11 @@ class blast_std6_qlen_slen:
         self.bitscore = float(blast_list[11]) # bit score
         self.qlen = int(blast_list[12]) # length of query
         self.slen = int(blast_list[13]) # length of subject
-
     def __lt__(self, other):
         return self.qstart < other.qstart
 
 
 blast_input_dict = defaultdict(list)
-
 with open(args.blastfile, 'r') as blastf:
     # this loads all the entries where the query (entry.split('\t')[0]) and the subject (entry.split('\t')[1]) are not the same
     for entry in blastf.readlines():
@@ -48,12 +45,10 @@ with open(args.blastfile, 'r') as blastf:
         if aln.subject != aln.query:
             blast_input_dict[aln.query].append(aln)
 
-blast_input = list()
-
 # curate alignments
 # build dictionary of relations (every quary points to the list of subjects it's aligned to)
 # query = 'jg27403'
-
+blast_input = dict()
 for query in blast_input_dict.keys():
     # ALL ADJUSTMENTS of the contition for gene <-> gene orthology
     # SHOULD BE ADDED HERE
@@ -76,12 +71,12 @@ for query in blast_input_dict.keys():
                 final_q2s_aln.len = final_q2s_aln.len + other_aln.len
             final_q2s_aln.qstart = start
             final_q2s_aln.qend = end
-        blast_input.append(final_q2s_aln)
+        blast_input[tuple(sorted((aln.query, aln.subject)))] = (final_q2s_aln)
 
+del blast_input_dict
 
 query2subject = defaultdict(list)
-
-for aln in blast_input:
+for aln in blast_input.values():
     # ALL ADJUSTMENTS of the contition for gene <-> gene orthology
     # SHOULD BE ADDED HERE
     if aln.pident > args.s and (aln.len / aln.qlen) > args.gene_coverage:
@@ -89,63 +84,61 @@ for aln in blast_input:
 
 # query2subject['jg21908']
 
+gene2processed = defaultdict(bool)
 list_of_genes = list(query2subject.keys())
-gene2og = defaultdict(str)
-og2gene = defaultdict(list)
-og_pairs = set()
+queue_of_genes = list()
+og = 0
+
+og_file = open(args.output_pattern + "_OGs.tsv", 'w')
+og_pairs_file = open(args.output_pattern + "_OG_pairs.tsv", 'w')
+og_pairs_file.write("\t".join(['og', 'gene1', 'gene2', 'identity', 'aln_len', 'qlen', 'slen'])  + '\n')
 
 # print('everything is ready')
-
-for gene in list_of_genes:
-    for ortholog in query2subject[gene]:
-        # proceed only if the blast is reciprocal
-        if not gene in query2subject[ortholog]:
-            continue
-        og_pairs.add(tuple(sorted((gene, ortholog))))
-        # both the gene and the ortholog have OG assigned already
-        if gene2og[gene] and gene2og[ortholog]:
-            # do the have the same one?
-            if gene2og[gene] == gene2og[ortholog]:
+# go through all the genes
+for top_bot_gene_iterator in list_of_genes:
+    # but skip all those that were processed already
+    if gene2processed[top_bot_gene_iterator]:
+        continue
+    # unprocessed gene means a new orthogroup
+    og += 1
+    # and the queue of genes to be processed in this orthogroup starts with that one gene
+    # queue_of_genes = ['jg12063']
+    queue_of_genes = [top_bot_gene_iterator]
+    # here I will store all the info about the orthogroup
+    gene2og = defaultdict(str)
+    og2gene = defaultdict(list)
+    og_pairs = set()
+    # now go through queue_of_genes list till it's empty
+    while not queue_of_genes == []:
+        # pop will always pop(0) the 1st element to gene
+        gene = queue_of_genes.pop(0)
+        # and here I want to process all it's orthologs
+        for ortholog in query2subject[gene]:
+            # proceed only if the blast is reciprocal
+            if not gene in query2subject[ortholog]:
                 continue
-            # no? then merge them, geping always the gene_og, but does not really matter
-            gene_og = gene2og[gene]
-            for orthologs_to_merge in og2gene[gene2og[ortholog]]:
-                gene2og[orthologs_to_merge] = gene_og
-                og2gene[gene_og].append(orthologs_to_merge)
-            continue
-        # ortholog has a OG -> add the gene there as well
-        if gene2og[ortholog] and not gene2og[gene]:
-            gene2og[gene] = gene2og[ortholog]
-            og2gene[og_id].append(gene)
-            continue
-        # gene has a OG -> add the ortholog there as well
-        if gene2og[gene] and not gene2og[ortholog]:
-            gene2og[ortholog] = gene2og[gene]
-            og2gene[og_id].append(ortholog)
-            continue
-        # none has, make a new OG
-        og_id = uuid.uuid4()
-        while og_id in gene2og.values():
-            og_id = uuid.uuid4()
-        gene2og[ortholog] = og_id
-        gene2og[gene] = og_id
-        og2gene[og_id].append(ortholog)
-        og2gene[og_id].append(gene)
+            # this will stop infinite loops
+            if gene2processed[ortholog]:
+                continue
+            # this gene needs to be process within this orthogroup
+            queue_of_genes.append(ortholog)
+            # but it won't be considered next time
+            gene2processed[ortholog] = True
+            og_pairs.add(tuple(sorted((gene, ortholog))))
+            gene2og[ortholog] = og
+            gene2og[gene] = og
+            og2gene[og].append(ortholog)
+            og2gene[og].append(gene)
 
-og_hast2og_name = dict()
-with open(args.output_pattern + "_OGs.tsv", 'w') as og_file:
-    og_number = 1
-    for og in og2gene.keys():
-        og_name = 'og_' + str(og_number)
-        og_hast2og_name[og] = og_name
-        og_file.write("\t".join([og_name] + og2gene[og]) + '\n')
-        og_number += 1
+    og_name = 'og_' + str(og)
+    og_file.write("\t".join([og_name] + og2gene[og]) + '\n')
 
-with open(args.output_pattern + "_OG_pairs.tsv", 'w') as og_pairs_file:
-    og_pairs_file.write("\t".join(['og', 'gene1', 'gene2', 'identity', 'aln_len', 'qlen', 'slen'])  + '\n')
-    for aln in blast_input:
-        if (aln.query, aln.subject) in og_pairs:
+    for og_pair in og_pairs:
+        for aln in blast_input[og_pair]:
             og_pairs_file.write("\t".join([og_hast2og_name[gene2og[aln.query]], aln.query, aln.subject, str(aln.pident), str(aln.len),  str(aln.qlen), str(aln.slen)])  + '\n')
+
+og_file.close()
+og_pairs_file.close()
 
 # for gene1, gene2 in og_pairs:
 #    print("\t".join([og_hast2og_name[gene2og[gene1]], gene1, gene2]))
