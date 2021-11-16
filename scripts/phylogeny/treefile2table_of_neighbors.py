@@ -33,15 +33,30 @@ def path2node(path):
         break
     return(clade)
 
-def indices2assignment(clades):
+def get_basal_sp(last_node):
+    for clade in last_node.clades:
+        if clade.is_terminal():
+            return(clade)
+    return('NA')
+
+def indices2assignment(clades, present_sciaridae, target_clade, basal_sp):
     member_sciaridae = False
     member_cecidomyiidae = False
     member_others = False
+    outgroup_sciaridae = present_sciaridae.copy()
     for clade in clades:
         sp = tip2sp_name(clade)
-        if sp == l_string or sp == a_string:
+        for i in sp:
+            try:
+                outgroup_sciaridae.remove(sp)
+            #     print("removed " + sp)
+            except KeyError:
+                continue
+        if str(target_clade).startswith(l_string) and sp == l_string:
             continue
-        elif sp in sciaridae:
+        elif str(target_clade).startswith(a_string) and sp == a_string:
+            continue
+        elif sp in present_sciaridae:
             member_sciaridae = True
             continue
         elif sp in cecidomyiidae:
@@ -50,7 +65,10 @@ def indices2assignment(clades):
         else:
             member_others = True
     if member_sciaridae and not member_cecidomyiidae and not member_others:
-        return "sciaridae"
+        if outgroup_sciaridae == set() and target_clade == basal_sp:
+            return "sciaridae_o"
+        else:
+            return "sciaridae_i"
     if member_cecidomyiidae and not member_sciaridae and not member_others:
         return "cecidomyiidae"
     return "other"
@@ -58,23 +76,43 @@ def indices2assignment(clades):
 def tree2assigments(input_newick):
     tree = Phylo.read(input_newick, "newick")
 
+    # print('parsing: ' + input_newick)
     sp2node_name = defaultdict(list)
+    present_Sciaridae = set()
+    possible_Sciaridae = set(['phytosciara_flavipes', 'trichosia_splendens', 'A-sciara_coprophila', 'L-sciara_coprophila'])
+    sciaridae_tips = []
     for tip in tree.get_terminals():
         sp = "_".join(tip.name.split('_')[:2]).rstrip("'")
         sp2node_name[sp].append(tip)
+        if sp in possible_Sciaridae:
+            # defining which sciaridae are present in the treefile
+            present_Sciaridae.add(sp)
+            sciaridae_tips.append(tip)
+
+    # print('testing monophyly')
+    # if tree.is_monophyletic(sciaridae_tips):
+    #     print("sciaridea are monophyletic")
+    # else:
+    #     print("they are not")
 
     tree_type = []
     assignments = []
     branch_lengths = []
     confidence = []
+
     for target_clade in sp2node_name[l_string] + sp2node_name[a_string]:
+        # print(target_clade)
         if target_clade in sp2node_name[l_string]:
             tree_type.append('L')
         if target_clade in sp2node_name[a_string]:
             tree_type.append('A')
         last_node = path2node(tree.get_path(target_clade))
+        basal_sp = get_basal_sp(last_node)
         monophy_terminal = last_node.get_terminals()
-        asn = indices2assignment(monophy_terminal)
+        asn = indices2assignment(monophy_terminal, present_Sciaridae, target_clade, basal_sp)
+        if asn[0:9] == 'sciaridae' and (not tree.is_monophyletic(sciaridae_tips) or len(present_Sciaridae) != 4):
+            # print('changing assignment')
+            asn = 'sciaridae'
         assignments.append(asn)
         branch_lengths.append(target_clade.branch_length)
         try:
