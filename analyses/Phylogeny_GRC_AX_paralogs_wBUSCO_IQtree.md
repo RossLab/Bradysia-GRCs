@@ -180,8 +180,64 @@ For the next sections I copied all the tree in folowing directories `7_GRC_phylo
 Then script
 
 ```
-scripts/phylogeny/nwck2table_of_L_neighbors.py
+scripts/phylogeny/treefile2table_of_neighbors.py <directory with treefiles>
 ```
 
 reads all the newick files in the mentioned directories and extract information about the closest relatives of all GRC genes. The result is in [this table](tables/L-busco-phylogenies-summary.tsv): `tables/L-busco-phylogenies-summary.tsv`. The columns are BUSCO id, taxonomic assignment of GRC1, GRC2, and X/A copy respectively . For trees with one GRC only, the value of GRC2 is NA. NA is also the case of a few cases of unresolved trees, but this should not affect the global picture.
+
+Reclassifying trees that are in:
+
+```
+/data/ross/mealybugs/analyses/Sciara-L-chromosome/data/phylogenies_grc/all_buscos/sciaridae_L.tsv
+```
+
+### Sequence composition of genes
+
+Long branch attraction due to composition.
+
+`data/phylogeny_mafft`
+
+```python
+import itertools
+from collections import defaultdict
+from os import listdir
+from os.path import isfile, join
+from sys import stdout
+
+sp2aas = defaultdict(lambda: defaultdict(int))
+
+align_dir = 'data/phylogenies_grc/all_buscos/mafft_sorted/'
+filenames = [join(align_dir, f) for f in listdir(align_dir) if isfile(join(align_dir, f))]
+
+for filename in filenames:
+  with open(filename) as file:
+    for header,sequence in itertools.zip_longest(*[file]*2):
+      species = "_".join(header[1:].split('_')[0:2])
+      sequence = sequence.rstrip('\n').replace("-", "")
+      for aa in sequence:
+        sp2aas[species][aa] += 1
+
+# nt_aln_dir = 'data/phylogeny_mafft'
+
+all_aas = set.intersection(*map(set,[sp2aas[sp].keys() for sp in sp2aas.keys()]))
+stdout.write("Species\t" + '\t'.join(all_aas) + '\n')
+
+for sp in sp2aas.keys():
+  aa_counts = [sp2aas[sp][aa] for aa in all_aas]
+  aa_freq = [str(round(aa_c / sum(aa_counts), 4)) for aa_c in aa_counts]
+  stdout.write(sp + "\t" + '\t'.join(aa_freq) + '\n')
+```
+
+I generated `tables/BUSCO_aa_composition.tsv` table (`/data/ross/mealybugs/analyses/Sciara-L-chromosome/tables/BUSCO_aa_composition.tsv`) with aa relative composition and now I can plot similarities between samples.
+
+```R
+aa_comp <- read.table('tables/BUSCO_aa_composition.tsv', header = T)
+
+# The mtcars dataset:
+data <- as.matrix(aa_comp[, -1])
+row.names(data) <- aa_comp[, 1]
+
+# Default Heatmap
+heatmap(data)
+```
 

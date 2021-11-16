@@ -1,5 +1,5 @@
 
-buscos <- read.table('tables/classification_of_GRC_genes_places_in_sciaridae.tsv', header = T)
+buscos <- read.table('tables/L-busco-phylogenies-summary-L-in-Sciaridae_only.tsv', header = T)
 
 assignments <- strsplit(buscos[, 2], ',')
 types <- strsplit(buscos[, 3], ',')
