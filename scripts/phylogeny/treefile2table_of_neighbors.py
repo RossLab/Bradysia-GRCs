@@ -14,19 +14,19 @@ sciaridae = set(['phytosciara_flavipes', 'trichosia_splendens'])
 cecidomyiidae = set(['mayetiola_destructor', 'porricondyla_nigripennis', 'catotricha_subobsoleta', 'lestremia_cinerea'])
 
 def tip2sp_name(tip):
-return("_".join(tip.name.split('_')[:2]).rstrip("'"))
+    return("_".join(tip.name.split('_')[:2]).rstrip("'"))
 
 def tip2scf(tip):
-return("_".join(tip.name.split('_')[2:4]).rstrip("'"))
+    return("_".join(tip.name.split('_')[2:4]).rstrip("'"))
 
 def path2node(path):
-if len(path) == 1:
-    return(path[0])
+    if len(path) == 1:
+        return(path[0])
 
 for clade in reversed(path[:-1]):
     terminals = clade.get_terminals()
     # if all tips are L tips, skip
-    if all(['sciara_coprophila' in tip2sp_name(t) for t in terminals]):   
+    if all(['sciara_coprophila' in tip2sp_name(t) for t in terminals]):
         continue
     # if the bootstrap confidence is smaller than...
     try:
@@ -35,7 +35,7 @@ for clade in reversed(path[:-1]):
     except AttributeError:
         continue
     break
-return(clade)
+    return(clade)
 
 def get_basal_sp(last_node):
 for clade in last_node.clades:
@@ -44,38 +44,38 @@ for clade in last_node.clades:
 return('NA')
 
 def indices2assignment(clades, present_sciaridae, target_clade, basal_sp):
-member_sciaridae = False
-member_cecidomyiidae = False
-member_others = False
-outgroup_sciaridae = present_sciaridae.copy()
-for clade in clades:
-    sp = tip2sp_name(clade)
-        for i in sp:
-            try:
-                outgroup_sciaridae.remove(sp)
-            #     print("removed " + sp)
-            except KeyError:
+    member_sciaridae = False
+    member_cecidomyiidae = False
+    member_others = False
+    outgroup_sciaridae = present_sciaridae.copy()
+    for clade in clades:
+        sp = tip2sp_name(clade)
+            for i in sp:
+                try:
+                    outgroup_sciaridae.remove(sp)
+                #     print("removed " + sp)
+                except KeyError:
+                    continue
+            if str(target_clade).startswith(l_string) and sp == l_string:
                 continue
-        if str(target_clade).startswith(l_string) and sp == l_string:
-            continue
-        elif str(target_clade).startswith(a_string) and sp == a_string:
-            continue
-        elif sp in present_sciaridae:
-            member_sciaridae = True
-            continue
-        elif sp in cecidomyiidae:
-            member_cecidomyiidae = True
-            continue
-        else:
-            member_others = True
-    if member_sciaridae and not member_cecidomyiidae and not member_others:
-        if outgroup_sciaridae == set() and target_clade == basal_sp:
-            return "sciaridae_o"
-        else:
-            return "sciaridae_i"
-    if member_cecidomyiidae and not member_sciaridae and not member_others:
-        return "cecidomyiidae"
-    return "other"
+            elif str(target_clade).startswith(a_string) and sp == a_string:
+                continue
+            elif sp in present_sciaridae:
+                member_sciaridae = True
+                continue
+            elif sp in cecidomyiidae:
+                member_cecidomyiidae = True
+                continue
+            else:
+                member_others = True
+        if member_sciaridae and not member_cecidomyiidae and not member_others:
+            if outgroup_sciaridae == set() and target_clade == basal_sp:
+                return "sciaridae_o"
+            else:
+                return "sciaridae_i"
+        if member_cecidomyiidae and not member_sciaridae and not member_others:
+            return "cecidomyiidae"
+        return "other"
 
 def tree2assigments(input_newick):
     tree = Phylo.read(input_newick, "newick")
@@ -104,7 +104,7 @@ def tree2assigments(input_newick):
     branch_lengths = []
     confidence = []
     scfs = []
-    
+
     for target_clade in sp2node_name[l_string] + sp2node_name[a_string] + sp2node_name[na_string]:
         if target_clade in sp2node_name[l_string]:
             tree_type.append('L')
