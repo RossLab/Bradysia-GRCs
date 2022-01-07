@@ -8,6 +8,7 @@ import sys
 
 l_string = 'L-sciara_coprophila'
 a_string = 'A-sciara_coprophila'
+na_string = 'NA-sciara_coprophila'
 # 'A-sciara_coprophila'
 sciaridae = set(['phytosciara_flavipes', 'trichosia_splendens'])
 cecidomyiidae = set(['mayetiola_destructor', 'porricondyla_nigripennis', 'catotricha_subobsoleta', 'lestremia_cinerea'])
@@ -22,7 +23,7 @@ def path2node(path):
     for clade in reversed(path[:-1]):
         terminals = clade.get_terminals()
         # if all tips are L tips, skip
-        if all([tip2sp_name(t) == 'L-sciara_coprophila' for t in terminals]):
+        if all(['sciara_coprophila' in tip2sp_name(t) for t in terminals]):   
             continue
         # if the bootstrap confidence is smaller than...
         try:
@@ -39,7 +40,7 @@ def indices2assignment(clades):
     member_others = False
     for clade in clades:
         sp = tip2sp_name(clade)
-        if sp == l_string or sp == a_string:
+        if sp == l_string or sp == a_string or sp == na_string:
             continue
         elif sp in sciaridae:
             member_sciaridae = True
@@ -67,11 +68,13 @@ def tree2assigments(input_newick):
     assignments = []
     branch_lengths = []
     confidence = []
-    for target_clade in sp2node_name[l_string] + sp2node_name[a_string]:
+    for target_clade in sp2node_name[l_string] + sp2node_name[a_string] + sp2node_name[na_string]:
         if target_clade in sp2node_name[l_string]:
             tree_type.append('L')
         if target_clade in sp2node_name[a_string]:
             tree_type.append('A')
+        if target_clade in sp2node_name[na_string]:
+            tree_type.append('NA')
         last_node = path2node(tree.get_path(target_clade))
         monophy_terminal = last_node.get_terminals()
         asn = indices2assignment(monophy_terminal)
