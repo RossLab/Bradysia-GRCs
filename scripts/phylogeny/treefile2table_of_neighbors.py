@@ -82,7 +82,7 @@ def tree2assigments(input_newick):
     # print('parsing: ' + input_newick)
     sp2node_name = defaultdict(list)
     present_Sciaridae = set()
-    possible_Sciaridae = set(['phytosciara_flavipes', 'trichosia_splendens', 'A-sciara_coprophila', 'L-sciara_coprophila'])
+    possible_Sciaridae = set(['phytosciara_flavipes', 'trichosia_splendens', 'A-sciara_coprophila', 'L-sciara_coprophila', 'NA-sciara_coprophila'])
     sciaridae_tips = []
     for tip in tree.get_terminals():
         sp = "_".join(tip.name.split('_')[:2]).rstrip("'")
