@@ -52,12 +52,14 @@ def indices2assignment(clades, present_sciaridae, target_clade, basal_sp):
         for i in sp:
             try:
                 outgroup_sciaridae.remove(sp)
-            #     print("removed " + sp)
+                # print("removed " + sp)
             except KeyError:
                 continue
         if str(target_clade).startswith(l_string) and sp == l_string:
             continue
         elif str(target_clade).startswith(a_string) and sp == a_string:
+            continue
+        elif str(target_clade).startswith(na_string) and sp == na_string:
             continue
         elif sp in present_sciaridae:
             member_sciaridae = True
