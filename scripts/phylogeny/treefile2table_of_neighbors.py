@@ -15,6 +15,9 @@ cecidomyiidae = set(['mayetiola_destructor', 'porricondyla_nigripennis', 'catotr
 def tip2sp_name(tip):
     return("_".join(tip.name.split('_')[:2]).rstrip("'"))
 
+def tip2scf(tip):
+    return("_".join(tip.name.split('_')[2:4]).rstrip("'"))
+
 def path2node(path):
     if len(path) == 1:
         return(path[0])
@@ -99,6 +102,7 @@ def tree2assigments(input_newick):
     assignments = []
     branch_lengths = []
     confidence = []
+    scfs = []
 
     for target_clade in sp2node_name[l_string] + sp2node_name[a_string]:
         # print(target_clade)
@@ -120,19 +124,21 @@ def tree2assigments(input_newick):
         except ValueError:
             node_conf = -1
         confidence.append(node_conf)
+        scfs.append(tip2scf(target_clade))
 
     tree_type_str = ','.join(tree_type)
     asn_str = ','.join(assignments)
     branch_len_str = ','.join([str(l) for l in branch_lengths])
     confidence_str = ','.join([str(c) for c in confidence])
-    return("\t".join([tree_type_str, asn_str, confidence_str, branch_len_str]))
+    scf_str = ','.join(scfs)
+    return("\t".join([tree_type_str, scf_str, asn_str, confidence_str, branch_len_str]))
 
 
 input_dir = sys.argv[1]
 tree_files = [i for i in os.listdir(input_dir) if i.endswith('treefile')]
 
 # with open('tables/L-busco-phylogenies-summary.tsv', 'w') as tab:
-sys.stdout.write('BUSCO_id\ttype\tgene_tree_location\tbootstraps\tbranch_lengths\n')
+sys.stdout.write('BUSCO_id\ttype\tscfs\tgene_tree_location\tbootstraps\tbranch_lengths\n')
 
 for file in tree_files:
     gene = file.split('.')[0]
