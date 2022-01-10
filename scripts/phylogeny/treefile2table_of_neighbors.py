@@ -46,29 +46,30 @@ def indices2assignment(clades, present_sciaridae, target_clade, basal_sp):
     member_sciaridae = False
     member_cecidomyiidae = False
     member_others = False
+    # these will serve to evaluate if the gene copy falls as internal branch of sciaridae or not
     outgroup_sciaridae = present_sciaridae.copy()
     for clade in clades:
         sp = tip2sp_name(clade)
-        for i in sp:
+        # this handles all the cases when evaluating members of sciaridae
+        if sp in present_sciaridae:
             try:
+                # this is to keep track is all sciaridae are show monophyly (i.e. if the gene is _o or _i)
                 outgroup_sciaridae.remove(sp)
-                # print("removed " + sp)
             except KeyError:
                 continue
-        if str(target_clade).startswith(l_string) and sp == l_string:
-            continue
-        elif str(target_clade).startswith(a_string) and sp == a_string:
-            continue
-        elif str(target_clade).startswith(na_string) and sp == na_string:
-            continue
-        elif sp in present_sciaridae:
-            member_sciaridae = True
-            continue
-        elif sp in cecidomyiidae:
+            # bradysia nodes wont be considered for phylogenetic placement (that needs to be a different member of sciaridae)
+            if 'sciara_coprophila' in sp:
+                continue
+            else:
+                member_sciaridae = True
+                continue
+
+        if sp in cecidomyiidae:
             member_cecidomyiidae = True
             continue
         else:
             member_others = True
+
     if member_sciaridae and not member_cecidomyiidae and not member_others:
         if outgroup_sciaridae == set() and target_clade == basal_sp:
             return "sciaridae_o"
@@ -96,7 +97,7 @@ def tree2assigments(input_newick):
 
     # print('testing monophyly')
     # if tree.is_monophyletic(sciaridae_tips):
-    #     print("sciaridea are monophyletic")
+    #     print("sciaridae are monophyletic")
     # else:
     #     print("they are not")
 

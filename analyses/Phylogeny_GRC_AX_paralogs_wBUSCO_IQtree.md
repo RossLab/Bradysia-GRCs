@@ -191,6 +191,14 @@ Reclassifying trees that are in:
 /data/ross/mealybugs/analyses/Sciara-L-chromosome/data/phylogenies_grc/all_buscos/sciaridae_L.tsv
 ```
 
+The second we have to re-classify all the genes.
+
+Update 7.1.2022. The table now contains `scfs` column as well, which will specify the original scaffold where each of the BUSCO copies was placed. Like this the table can be regenerated
+
+```
+python3 scripts/phylogeny/treefile2table_of_neighbors.py data/phylogenies_grc/all_buscos/genetrees_iqtree > tables/phylogeny_summary_allBUSCOS_redone.tsv
+```
+
 ### Sequence composition of genes
 
 Long branch attraction due to composition.
