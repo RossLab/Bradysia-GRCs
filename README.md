@@ -2,8 +2,7 @@
 
 *Bradysia coprophila* is a fungus gnat (fly) that carries germline restricted chromosomes (GRCs or 'L' chromosomes). We sequenced the germ tissue in *B. coprophila* and identified the GRCs using K-mer and coverage based techniques. We then compared the genes on the GRCs to those in the core genome (i.e. autosomes and X chromosome) to explore how the GRCs evolved in this species. The code in this repository was used in the analyses in this manuscript (https://doi.org/10.1101/2021.02.08.430288).
 
-#### Notes
-
+#### Note:
 Within this repository, **L** is a synonym of **g**erm-line **r**estricted **c**hromosome (**GRC**).
 
 ### Project data
@@ -23,31 +22,23 @@ Later paths should be replaced by URLs in public reposutories.
 - repeatmodeler/masker for genome annotation:
 `/data/ross/mealybugs/analyses/Sciara-L-chromosome/data/repeats`
 
-### Subprojects
+### Analysis documentation
 
-This in an incomplete list, only those there are here on GitHub
+Below is a list of manuscript sections containing analysis documentation and scripts used for those analyses
 
-### Annotation
+### Genome assembly and annotation
   - associated data:
   * table linking Illumina contigs to annotated genes with assignments: `data/gene.assignment.tab.tsv`
     - associated r script: `scripts/gene.num.tab.R`
   * gene ID and mean coverage for that gene: `data/gene_cov_table.tsv`
 
-#### Sorting out the Sciara genome to L/X/A
+#### Chromosome classification of the Sciara genome to GRC/X/A
   - [analyses documentation](analyses/assigment-of-L-X-A.md)
   - [associated scripts](scripts/kmer-assigment-of-L-X-A)
   - table with scores and assignments for all Illumina contigs
       `data/scaffold_assignment_tab_full.tsv`
-
-#### Using Busco genes to determine the age of the L chromosome
-  - [analyses documentation](analyses/L_age_from_BUSCO.md)
-  - associated scripts
-   * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
-   * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
-  - associated data
-   * [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)
-
-#### Genome wide paralogy
+      
+#### Genome wide paralogy to identify GRC homologs
   - [analyses documentation](analyses/genome_wide_paralogy.md)
   - [scripts](scripts/paralog_divergence_prelim_analysis.R)
   - associated data
@@ -59,12 +50,22 @@ This in an incomplete list, only those there are here on GitHub
   * table of colinear blocks between chromosomes. Contains gene ID, chromosome assignment, scf in Illumina, scf in colinear block, block info, order in block and paralog ID, and assignment, and mean gene cov: `data/full_colinear_tab.tsv`
     - associated r script: `scripts/colinear_exploration.R`
 
-#### Coverage of L genes
+#### GRC scaffold coverage analysis
   - [analyses documentation](analyses/cov_L_genes.md)
   - associated data
    * per gene coverage: `data/gene.cov.braker.annotation.tsv`
 
-#### Expression of L chromosome genes
+#### Phylogenetic placement of B. coprophila BUSCO genes
+  - [analyses documentation](analyses/L_age_from_BUSCO.md)
+  - associated scripts
+   * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
+   * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
+  - associated data
+   * [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)
+
+#### GRC homolog identification in the _M. destructor_ (Cecidomyiidae) genome
+
+
 
 
 ### Important places to look at
