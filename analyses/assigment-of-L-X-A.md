@@ -1,18 +1,19 @@
-## Sorting of Sciara genome
+## Assigning chromosome location _B. coprophila_ Illumina scaffolds 
 
-The goal is to figure reliable assignment of genome assembly of Scaira to X-linked (X), L-linked (L) and autosomal (A) sequences.
+### Overview
+The goal is to reliably assign scaffolds in the genome assembly of _B. coprophila_ to X-linked (X), GRC-linked (L) and autosomal (A) sequences. We will use coverage and k-mer based approaches to assign the chromosomal location of scaffolds and then compare the two approaches. Scaffolds that were assigned to the same chromosome type with both analyses will be used in later analyses.
 - [Project board](https://github.com/orgs/RossLab/projects/1).
 
 
 Input data:
- - Illumina testes
- - Illumina head
- - Illumina testes assembly (spades)
- - PacBio testes
- - PacBio heads (with the X inversion)
- - PacBio testes polished assembly (ReadBeans, Racon with both long and short reads)
+ - Illumina testes (male)
+ - Illumina head (male)
+ - Illumina assembly (spades)
+ - PacBio testes (male)
+ - PacBio heads (with the X inversion) (female- not used here)
+ - PacBio testes polished assembly (ReadBeans, Racon with both long and short reads) (from only male data- not used here)
 
-We use two approaches, the coverage ratio of head and testes libraries and using 2d kmer spectra.
+For both the coverage and k-mer approaches, we compare the Illumina testes and head sequencing libraries to determine what chromosome type sequences belong as GRCs, X chromosomes, and autosomes are at different frequency in these two tissue types (See Figure 1A/B in manuscript for depiction of sequencing approach).
 
 ### Table of content
 
