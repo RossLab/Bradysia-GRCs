@@ -26,7 +26,7 @@ Later paths should be replaced by URLs in public reposutories.
 
 Below is a list of manuscript sections containing analysis documentation and scripts used for those analyses
 
-### Genome assembly and annotation
+#### Genome assembly and annotation
   - associated data:
   * table linking Illumina contigs to annotated genes with assignments: `data/gene.assignment.tab.tsv`
     - associated r script: `scripts/gene.num.tab.R`
