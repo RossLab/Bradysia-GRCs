@@ -7,7 +7,10 @@ Within this repository, **L** is a synonym of **g**erm-line **r**estricted **c**
 
 ### Project data
 
-Later paths should be replaced by URLs in public reposutories.
+Later paths should be replaced by URLs in public repositories.
+
+- raw reads: ENA project PRJEB44837 https://www.ebi.ac.uk/ena/browser/view/PRJEB44837?show=reads
+- data used to generate all figures in manuscript: tables/figure_data.tar.gz
 
 - softmasked genome (Illumina): `/data/ross/mealybugs/analyses/sciara_coprophila/18_repeat/repeats/Scop_repeatmask/scop.spades2.min1kb.trimmed.fasta.masked`
 - annotation: `/data/ross/mealybugs/analyses/sciara_coprophila/20_braker/braker.gff3`
