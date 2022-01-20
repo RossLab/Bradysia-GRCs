@@ -1,197 +1,98 @@
-note: had some issues initially so started again in 10_seqs2. need to delete 1_seq_etc and 2_ 3_ any others before 10_
-
-note2: realised that we can't do species tree with 2L genes since we don't know which L each gene belongs to so we can only look at gene trees for those ones (not that many anyways)
 
 
-**Objective of script** is to make a species alignment and phylogeny for A/X and L duplicate buscos (there are more than 300) and gene trees for each gene, then to try to reconcile the species tree and gene trees with concordance factors in IQtree.
 
+### Objective
+We want to explore the origin of GRC genes by looking at their phylogenetic placement in phylogenies made with BUSCO genes from representitive species spanning Sciaroidea (the group that contains _B. coprophila_ and other Sciaridae, Cecidomyiidae (another fly group that has GRCs) and other gnats. We're going to use BUSCO genes for this analysis since we can easily identify homologs in all the species we're interested in.
 
-### Before step 1:
-- the BUSCO IDs in the 4b_busco_allsp_aa2/ folder are only the ID's with more than 80 % of the species in the alignment. Might need to take out any without all the species later.
+### Analysis
+#### Before step 1:
+- Need to add some additional detail about how we ran BUSCO on the gnat genomes and pulled out homologs based on BUSCO ID.
+- the BUSCO IDs in the 4b_busco_allsp_aa2/ folder are only the ID's with more than 80 % of the species in the alignment. .
 
-### Step1: Keeping only longest orf in BUSCO aa fastas
+### Counting how many species are in BUSCO ID:
+```
+for gene in $(cat s.coprophila.duplicated.ID.txt); do
+  count=$(grep ">" 4_busco_allsp_aa2/$gene | cut -f 1,2 -d "_" | sort | uniq | wc -l)
+  echo -e "$gene \t $count" >> sp.count.dup.busco.txt
+  done
+for gene in $(cat s.coprophila.single.ID.txt); do
+  count=$(grep ">" 4b_busco_allsp_aa2/$gene | cut -f 1,2 -d "_" | sort | uniq | wc -l)
+  total=$(grep ">" 4b_busco_allsp_aa2/$gene | cut -f 1,2 -d "_" | wc -l)
+  echo -e "$gene \t $count \t $total">> sp.count.sc.busco.uniq.tot.txt
+  done
+```
+
+```
+qsub -o logs -e logs -cwd -N spcount -V -pe smp64 1 -b yes './command.sp.count.sh'
+```
+Now I'm going to import these tables into R and make some histograms of which aa seqs to not include
+
+rscript:
+`/data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/busco.sp.count.hist.R`
+If we include all of the genes that have more than 80% species in them then we include anything over 12.8 sp which turns out to be 1200 genes (I think that's good).
+
+busco.gene.80.txt (genes we want to keep)
+```
+for gene in $(cat busco.gene.80.txt); do
+  mv 4_busco_allsp_aa2/$gene 4b_busco_allsp_aa2/$gene
+done
+```
+#### Moving genes of interest to one folder
+- IDs that have 80% of species present
+```
+for faa_file in $(cat data/phylogenies_grc/BUSCO_80_all_id.txt); do
+  mv /data/ross/mealybugs/analyses/sciara_coprophila/21_L_age1/4b_busco_allsp_aa2/"$faa_file".faa data/phylogenies_grc/other_aa_seq_allsp/"$faa_file".faa
+done
+```
+#### Keeping only longest orf in BUSCO amino acid fastas
 
 location: `/data/ross/mealybugs/analyses/sciara_coprophila/21_L_age1/4b_busco_allsp_aa2/`
 script: `scripts/get_lengest_busco_sp.py`
 
-Script to run all BUSCO aa fasta files through longest orf script, which pulls out the longest orf for species other than S. cop and labels S. cop so that the A/X copy is labelled A and the L copy/ies are labelled L (need to run in channotation env, chodson python3 doesnt work)
+Script to run all BUSCO aa fasta files through longest orf script, which pulls out the longest orf for species other than B. cop and labels B. cop so that the A/X copy is labelled A and the GRC copy or copies are labelled L
 ```
-for faa_file in 4b_busco_allsp_aa2/*.faa; do
-  gene=$(echo "$faa_file" | cut -f 2 -d "/" | cut -f 1 -d ".")
-  python3 /data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/get_lengest_busco_sp.py "$faa_file" > 7_GRC_phylogenies/1_seqs_longestorfs/"$gene".fasta
+for faa_file in data/phylogenies_grc/other_aa_seq_allsp/aa_seq/*; do
+  gene=$(echo "$faa_file" | cut -f 5 -d "/" | cut -f 1 -d ".")
+  python3 /data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/get_lengest_busco_sp.py "$faa_file" > data/phylogenies_grc/other_aa_seq_allsp/aa_seqs_longestorf/"$gene".fasta
 done
 ```
-for faa_file in 4b_busco_allsp_aa2/10008at50557.faa; do
-  gene=$(echo "$faa_file" | cut -f 2 -d "/" | cut -f 1 -d ".")
-  python3 /data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/get_lengest_busco_sp.py "$faa_file" > 7_GRC_phylogenies/"$gene".fasta
-done
 
-```
-qsub -o logs -e logs -cwd -N longorf -V -pe smp64 1 -b yes './command.longestorf.sh'
-```
+#### Running mafft on each fasta (BUSCO ID) to get alignment
 
-### Step2: running mafft on each fasta to get alignment
-
+##### Running mafft on each fasta to get alignment
 ```
-for faa_file in 7_GRC_phylogenies/10_seqs2/*.fasta; do
-  gene=$(echo "$faa_file" | cut -f 3 -d "/" | cut -f 1 -d ".")
-  linsi "$faa_file" > 7_GRC_phylogenies/2_mafft_alignments/"$gene".fasta
+for faa_file in data/phylogenies_grc/other_aa_seq_allsp/aa_seqs_longestorf/*.fasta; do
+  gene=$(echo "$faa_file" | cut -f 5 -d "/" | cut -f 1 -d ".")
+  linsi "$faa_file" > data/phylogenies_grc/other_aa_seq_allsp/mafft_alignments/"$gene".fasta
 done
 ```
-```
-qsub -o logs -e logs -cwd -N mafft -V -pe smp64 1 -b yes './command.mafft_grc.sh'
-```
 
-### Step3: reorganising mafft alignment so outgroup is first species
+#### Reorganising mafft alignment so outgroup is first species
 *outgroup has to be first species in alignment*
 script to reformat mafft files
 `/data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/Getting_L_age_using_BUSCO/sorting_MAFFT_alignmnets_of_BUSCO_genes.py`
 
 ```
-for fasta_file in 7_GRC_phylogenies/12_mafft_alignments/*.fasta; do
-  gene=$(echo "$fasta_file" | cut -f 3 -d "/" | cut -f 1 -d ".")
-  python3 /data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/Getting_L_age_using_BUSCO/sorting_MAFFT_alignmnets_of_BUSCO_genes.py "$fasta_file" > 7_GRC_phylogenies/13_mafft_sorted/"$gene"_sorted.fasta
+for fasta_file in data/phylogenies_grc/other_aa_seq_allsp/mafft_alignments/*.fasta; do
+  gene=$(echo "$fasta_file" | cut -f 5 -d "/" | cut -f 1 -d ".")
+  python3 /data/ross/mealybugs/analyses/Sciara-L-chromosome/scripts/Getting_L_age_using_BUSCO/sorting_MAFFT_alignmnets_of_BUSCO_genes.py "$fasta_file" > data/phylogenies_grc/other_aa_seq_allsp/mafft_sorted/"$gene"_sorted.fasta
 done
 ```
+#### Making gene trees with IQtree for each BUSCO id
+this is making a phylogeny for each BUSCO ID separately
 ```
-qsub -o logs -e logs -cwd -N sorting -V -pe smp64 2 -b yes './command.mafft.sort.sh'
-```
-here
-
-### Step4: take out BUSCOs with one GRC gene and one A/X
-took out BUSCO id's for BUSCO groups:
-- A-L and L-X: `data/Lother_paralogs.txt`
-- A-L-L and L-L-X: `data/LLother_paralogs.txt`
-
-script to do this in R (probably should be separate script): `make_BUSCO_scf_tab`
-then
-
-```
-cut -f1 Lother_paralogs.txt | uniq > L_XA_buscoid.Illumina.txt
-```
-
-```
-for gene in $(cat L_XA_buscoid.Illumina.txt); do
-  cp 7_GRC_phylogenies/13_mafft_sorted/"$gene"_sorted.fasta 7_GRC_phylogenies/14_mafft_L_other/
-done
-for gene in $(cat LL_XA_buscoid.Illumina.txt); do
-  cp 7_GRC_phylogenies/13_mafft_sorted/"$gene"_sorted.fasta 7_GRC_phylogenies/14b_mafft_LL_other/
+for fasta_file in data/phylogenies_grc/other_aa_seq_allsp/mafft_sorted/*; do
+  gene=$(echo "$fasta_file" | cut -f 5 -d "/" | cut -f 1 -d "_")
+  iqtree -s "$fasta_file" -alrt 1000 -bb 1000 -nt AUTO -ntmax 8 -pre data/phylogenies_grc/other_aa_seq_allsp/genetrees_iqtree/"$gene"
 done
 ```
+- We manually inspected some of the genetrees and it seems that most GRC genes either are in the Sciaridae clade in the phylogeny or in the Cecidomyiidae clade. We made a script to summarise which of these two clades (or other) each _B. coprophila_ BUSCO gene is placed in. It also gives us some extra information like the bootstrap value at the nearest node for _B. coprophila_ genes and the branch length of the _B. coprophila_ branches.
 
-output
-
-```
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/2418at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/12466at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/13582at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/18400at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/46968at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/47520at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/57218at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/59099at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/59985at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/61099at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/66657at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/68581at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/70521at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/76908at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/77723at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/78674at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/81919at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/84147at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/87518at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/89135at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/91691at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/97917at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/102539at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/106023at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/106197at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/106896at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/111975at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/119324at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/123925at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/128559at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/137014at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/146376at50557_sorted.fasta': No such file or directory
-```
-
-(32)
+Script: `scripts/phylogeny/treefile2table_of_neighbors.py`
 
 ```
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/39740at50557_sorted.fasta': No such file or directory
-cp: cannot stat '7_GRC_phylogenies/13_mafft_sorted/93865at50557_sorted.fasta': No such file or directory
+qsub -o logs -e logs -cwd -N phy_summary -V -pe smp64 1 -b yes 'python3 scripts/phylogeny/treefile2table_of_neighbors.py data/phylogenies_grc/other_aa_seq_allsp/genetrees_iqtree/ > tables/phylogeny_summary_allotherBUSCOS.tsv'
 ```
-
-(2)
-
-```
-qsub -o logs -e logs -cwd -N sorting -V -pe smp64 2 -b yes './command.mvalignments.sh'
-```
-
-### Step5: running IQtree on all alignments to make species tree and also on all BuscoID's separately to make gene trees.
-
-This is renamming the species names in the fasta file to make the species tree. I think I'll do this on all the files in the 14_ directory since they're copied from 13_ anyways
-
-```
-for faa_file in *; do
-	cat "$faa_file" | awk 'BEGIN { FS = "_" }; />/{ print $1"_"$2 } !/^>/ { print $0 }' > renamed."$faa_file" && mv renamed."$faa_file" "$faa_file"
-done
-```
-
-```
-qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 8 -b yes 'iqtree -s 7_GRC_phylogenies/14_mafft_L_other/ -alrt 1000 -bb 1000 -nt AUTO -ntmax 8 -pre 7_GRC_phylogenies/15c_sp_tree_Lother/Lother_sp'
-```
-
-For species trees (in this case species tree includes the GRC(s) as a "species")
-
-
-For gene trees
-
-```
-for fasta_file in 7_GRC_phylogenies/14_mafft_L_other/*; do
-  gene=$(echo "$fasta_file" | cut -f 3 -d "/" | cut -f 1 -d "_")
-  iqtree -s "$fasta_file" -alrt 1000 -bb 1000 -nt AUTO -ntmax 8 -pre 7_GRC_phylogenies/15_genetrees_L/"$gene"
-done
-for fasta_file in 7_GRC_phylogenies/14b_mafft_LL_other/*; do
-  gene=$(echo "$fasta_file" | cut -f 3 -d "/" | cut -f 1 -d "_")
-  iqtree -s "$fasta_file" -alrt 1000 -bb 1000 -nt AUTO -ntmax 8 -pre 7_GRC_phylogenies/15b_genetrees_LL/"$gene"
-done
-```
-
-```
-qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 8 -b yes './command.iqtree_L.sh'
-```
-
-### Now need to compute concordance factors
-command from iqtree site
-
-```
-iqtree -t concat.treefile --gcf loci.treefile -p ALN_DIR --scf 100 --prefix concord -T 10
-```
-```
-qsub -o logs -e logs -cwd -N iqtree -V -pe smp64 10 -b yes 'iqtree -t 7_GRC_phylogenies/15c_sp_tree_Lother/Lother_sp.treefile --gcf 7_GRC_phylogenies/15_genetrees_L/*.treefile -p 7_GRC_phylogenies/14_mafft_L_other/ --scf 100 --prefix 7_GRC_phylogenies/16_concord/concord -T 10'
-```
-
-### GRC genes phylogeny summary
-
-For the next sections I copied all the tree in folowing directories `7_GRC_phylogenies/15_genetrees_L/`, `7_GRC_phylogenies/15b_genetrees_LL/` to `data/GRC_phylogenies/15_genetrees_L` and `data/GRC_phylogenies/15b_genetrees_LL` respectively.
-
-Then script
-
-```
-scripts/phylogeny/treefile2table_of_neighbors.py <directory with treefiles>
-```
-
-reads all the newick files in the mentioned directories and extract information about the closest relatives of all GRC genes. The result is in [this table](tables/L-busco-phylogenies-summary.tsv): `tables/L-busco-phylogenies-summary.tsv`. The columns are BUSCO id, taxonomic assignment of GRC1, GRC2, and X/A copy respectively . For trees with one GRC only, the value of GRC2 is NA. NA is also the case of a few cases of unresolved trees, but this should not affect the global picture.
-
-Reclassifying trees that are in:
-
-```
-/data/ross/mealybugs/analyses/Sciara-L-chromosome/data/phylogenies_grc/all_buscos/sciaridae_L.tsv
-```
-
-The second we have to re-classify all the genes.
 
 Update 7.1.2022. The table now contains `scfs` column as well, which will specify the original scaffold where each of the BUSCO copies was placed. Like this the table can be regenerated
 
@@ -199,9 +100,37 @@ Update 7.1.2022. The table now contains `scfs` column as well, which will specif
 python3 scripts/phylogeny/treefile2table_of_neighbors.py data/phylogenies_grc/all_buscos/genetrees_iqtree > tables/phylogeny_summary_allBUSCOS_redone.tsv
 ```
 
-### Sequence composition of genes
+- next, summarising the output of this script in R:
+script: `scripts/BUSCO_all_plots.R`
 
-Long branch attraction due to composition.
+#### Concatenated phylogenies for GRC-core gene BUSCO genes:
+I'm going to make two different concatentated phylogenies. The first will be for the genes that fall within the Cecidomyiidae and the second will be for the ones that fall within the Sciaridae. Then I'll put an N= on the figure showing how many genes went into each. I'm going to change the order of figure 5 so it's the gene trees first, then the concatentated trees.
+
+##### Extracting GRC-Core gene BUSCOs and separating based on phylogenetic placement. 
+- Then taking away scaffold info from species name so when I run IQtree genes from the same species will concatenate
+```
+for faa_file in $(cat data/phylogenies_grc/all_buscos/ceci_buscos_AL_ids.tsv); do
+  cp data/phylogenies_grc/all_buscos/mafft_sorted/"$faa_file"_sorted.fasta data/phylogenies_grc/all_buscos/ceci_busco_tree/"$faa_file"_sorted.fasta
+done
+for faa_file in $(cat data/phylogenies_grc/all_buscos/sciaridae_buscos_AL_ids.tsv); do
+  cp data/phylogenies_grc/all_buscos/mafft_sorted/"$faa_file"_sorted.fasta data/phylogenies_grc/all_buscos/sciaridae_busco_tree/"$faa_file"_sorted.fasta
+done
+```
+```
+for faa_file in *; do
+	cat "$faa_file" | awk 'BEGIN { FS = "_" }; />/{ print $1"_"$2 } !/^>/ { print $0 }' > renamed."$faa_file" && mv renamed."$faa_file" "$faa_file"
+done
+```
+#### Making the phylogenies
+```
+qsub -o logs -e logs -cwd -N concat_phy -l h=biggar -V -pe smp64 32 -b yes 'iqtree -s data/phylogenies_grc/all_buscos/sciaridae_busco_tree/ -alrt 1000 -bb 1000 -nt AUTO -ntmax 32 -mset LG -msub nuclear -pre data/phylogenies_grc/all_buscos/concat_phys/sciaridae_AL_tree'
+qsub -o logs -e logs -cwd -N concat_phy -l h=bigbang -V -pe smp64 32 -b yes 'iqtree -s data/phylogenies_grc/all_buscos/ceci_busco_tree/ -alrt 1000 -bb 1000 -nt AUTO -ntmax 32 -mset LG -msub nuclear -pre data/phylogenies_grc/all_buscos/concat_phys/ceci_AL_tree'
+```
+
+
+#### Amino acid sequence composition of genes
+
+Looking at whether weird amino acid composition of GRC genes could account for phylogenetic position (due to long branch attraction).
 
 `data/phylogeny_mafft`
 
