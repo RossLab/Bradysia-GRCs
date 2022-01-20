@@ -61,7 +61,7 @@ Below is a list of manuscript sections containing analysis documentation and scr
 
 #### Phylogenetic placement of B. coprophila BUSCO genes
   - [analyses documentation](analyses/L_age_from_BUSCO.md)
-  - [analyses documentation](Phylogeny_GRC_AX_paralogs_wBUSCO_IQtree.md)
+  - [analyses documentation](analyses/Phylogeny_GRC_AX_paralogs_wBUSCO_IQtree.md)
 
 
   - associated scripts
