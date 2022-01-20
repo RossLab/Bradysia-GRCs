@@ -9,7 +9,7 @@ We want to explore the origin of GRC genes by looking at their phylogenetic plac
 - Need to add some additional detail about how we ran BUSCO on the gnat genomes and pulled out homologs based on BUSCO ID.
 - the BUSCO IDs in the 4b_busco_allsp_aa2/ folder are only the ID's with more than 80 % of the species in the alignment. .
 
-### Counting how many species are in BUSCO ID:
+#### Counting how many species are in BUSCO ID:
 ```
 for gene in $(cat s.coprophila.duplicated.ID.txt); do
   count=$(grep ">" 4_busco_allsp_aa2/$gene | cut -f 1,2 -d "_" | sort | uniq | wc -l)
