@@ -33,34 +33,33 @@ Below is a list of manuscript sections containing analysis documentation and scr
   * gene ID and mean coverage for that gene: `data/gene_cov_table.tsv`
 
 #### Chromosome classification of the Sciara genome to GRC/X/A
-  - [analyses documentation](analyses/assigment-of-L-X-A.md)
+  - [analysis documentation](analyses/assigment-of-L-X-A.md)
   - [associated scripts](scripts/kmer-assigment-of-L-X-A)
   - table with scores and assignments for all Illumina contigs
       `data/scaffold_assignment_tab_full.tsv`
       
-#### Genome wide paralogy to identify GRC homologs
-  - [analyses documentation](analyses/genome_wide_paralogy.md)
+#### Genome wide paralogy to identify GRC homologs and colinearity analysis
+  - [analysis documentation](analyses/genome_wide_paralogy.md)
 
 
   - [scripts](scripts/paralog_divergence_prelim_analysis.R)
   - associated data
-  * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `data/ntgene_recip_blast_cov.tsv`
-  * table with all info from paralog exploration, paralog ID, cov, type, and paralog freq after filtering based on gene/alignment length :  `data/filtered_paralog_tab.tsv`
-    
-#### Colinearity analysis
-  - associated data
-  * table of colinear blocks between chromosomes. Contains gene ID, chromosome assignment, scf in Illumina, scf in colinear block, block info, order in block and paralog ID, and assignment, and mean gene cov: `data/full_colinear_tab.tsv`
+    * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `data/ntgene_recip_blast_cov.tsv`
+    * table with all info from paralog exploration, paralog ID, cov, type, and paralog freq after filtering based on gene/alignment length :  `data/filtered_paralog_tab.tsv`
+
+  - associated data for colinearity analysis
+    * table of colinear blocks between chromosomes. Contains gene ID, chromosome assignment, scf in Illumina, scf in colinear block, block info, order in block and paralog ID, and assignment, and mean gene cov: `data/full_colinear_tab.tsv`
     - associated r script: `scripts/colinear_exploration.R`
 
 #### GRC scaffold coverage analysis
-  - [analyses documentation](analyses/cov_L_genes.md)
+  - [analysis documentation](analyses/cov_L_genes.md)
 
 
   - associated data
    * per gene coverage: `data/gene.cov.braker.annotation.tsv`
 
 #### Phylogenetic placement of B. coprophila BUSCO genes
-  - [analyses documentation](analyses/Phylogeny_GRC_AX_paralogs_wBUSCO_IQtree.md)
+  - [analysis documentation](analyses/Phylogeny_GRC_AX_paralogs_wBUSCO_IQtree.md)
 
 
   - associated scripts
