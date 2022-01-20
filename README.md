@@ -12,13 +12,14 @@ Later paths should be replaced by URLs in public repositories.
 - raw reads: ENA project PRJEB44837 https://www.ebi.ac.uk/ena/browser/view/PRJEB44837?show=reads
 - data used to generate all figures in manuscript: tables/figure_data.tar.gz
 
+
+
+
 - softmasked genome (Illumina): `/data/ross/mealybugs/analyses/sciara_coprophila/18_repeat/repeats/Scop_repeatmask/scop.spades2.min1kb.trimmed.fasta.masked`
 - annotation: `/data/ross/mealybugs/analyses/sciara_coprophila/20_braker/braker.gff3`
 - pacbio genome: `/data/ross/mealybugs/analyses/sciara_coprophila/Pacbio/4_racon2_sr/sciara.germ.pb.illumina1.rb.racon6pe.fasta`
 - RNAseq of germ and soma (Males and Females):
 `/data/ross/mealybugs/raw/11791_Ross_Laura/raw_data/20190812/` and Mgerm/body or Fgerm/body directory
-- Illumina raw reads:
-`/data/ross/mealybugs/raw/transfer.genomics.ed.ac.uk/11372_Ross_Laura/raw_data/data_by_date/20180618/all_reads/`
 - all vs all blasts
   - genes (nucleotides) `data/genome_wide_paralogy/genes_all_vs_all.blast`
   - proteins (transcribed genes) `data/genome_wide_paralogy/proteins_all_vs_all.blast`
