@@ -40,6 +40,8 @@ Below is a list of manuscript sections containing analysis documentation and scr
       
 #### Genome wide paralogy to identify GRC homologs
   - [analyses documentation](analyses/genome_wide_paralogy.md)
+
+
   - [scripts](scripts/paralog_divergence_prelim_analysis.R)
   - associated data
   * table with gene pairs in reciprocal blasts and gene cov, percent alignment between the blast pairs, length of genes, and assignments for genes. Before filtering based or gene/alignment length:  `data/ntgene_recip_blast_cov.tsv`
@@ -52,11 +54,16 @@ Below is a list of manuscript sections containing analysis documentation and scr
 
 #### GRC scaffold coverage analysis
   - [analyses documentation](analyses/cov_L_genes.md)
+
+
   - associated data
    * per gene coverage: `data/gene.cov.braker.annotation.tsv`
 
 #### Phylogenetic placement of B. coprophila BUSCO genes
   - [analyses documentation](analyses/L_age_from_BUSCO.md)
+  - [analyses documentation](Phylogeny_GRC_AX_paralogs_wBUSCO_IQtree.md)
+
+
   - associated scripts
    * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
    * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
@@ -65,7 +72,7 @@ Below is a list of manuscript sections containing analysis documentation and scr
 
 #### GRC homolog identification in the _M. destructor_ (Cecidomyiidae) genome
 
-
+  - [analyses documentation](analyses/GRC_homology_to_Mdestructor_vs_core_genome.md)
 
 
 ### Important places to look at
