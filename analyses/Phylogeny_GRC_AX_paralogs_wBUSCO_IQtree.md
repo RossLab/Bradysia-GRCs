@@ -9,6 +9,23 @@ We want to explore the origin of GRC genes by looking at their phylogenetic plac
 - Need to add some additional detail about how we ran BUSCO on the gnat genomes and pulled out homologs based on BUSCO ID.
 - the BUSCO IDs in the 4b_busco_allsp_aa2/ folder are only the ID's with more than 80 % of the species in the alignment. .
 
+#### Running BUSCO on gnat genomes
+- We used the fungus gnat genomes recently published in Anderson et al. 2020 (doi: 10.1101/2020.10.04.325340). This study contained genomes spanning the Sciaroidea phylogeny.
+- We ran BUSCO on each of these genomes. Below is an example command:
+```
+qsub -o logs -e logs -cwd -N busco -V -pe smp64 24 -b yes 'export AUGUSTUS_CONFIG_PATH="/ceph/users/kjaron/augustus_config" && busco -i /data/ross/mealybugs/raw/fungus_gnat_genomes/Lestremiacinereafinal.contigs.fa -c 24 -o busco.lestremia_cinerea -m genome -l insecta_odb10'
+```
+then we need to make one fasta for each BUSCO ID with the gene sequence from each species (took the amino acid sequence)
+- this script is for duplicated BUSCOs but we also did this for single copy BUSCOs
+```    
+for gene in $(cat s.coprophila.duplicated.ID.txt); do
+  for faa_file in */run_insecta_odb10/busco_sequences/*_copy_busco_sequences/"$gene"; do
+    species=$(echo "$faa_file" | cut -f 1 -d "/" | cut -f 2 -d "." )
+    cat "$faa_file" | awk -v sp="$species" 'BEGIN { FS = "\t" }; />/{ print ">" sp "_" substr($1,2) } !/^>/ { print $0 }' >> 1_busco_aa_allspecies/"$gene"
+  done
+done
+```
+
 #### Counting how many species are in BUSCO ID:
 ```
 for gene in $(cat s.coprophila.duplicated.ID.txt); do
