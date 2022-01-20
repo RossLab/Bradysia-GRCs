@@ -64,10 +64,10 @@ Below is a list of manuscript sections containing analysis documentation and scr
 
 
   - associated scripts
-   * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
-   * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
+      * [make_BUSCO_scf_tab.R](scripts/make_BUSCO_scf_tab.R)
+      * [busco.sp.count.hist.R](scripts/busco.sp.count.hist.R)
   - associated data
-   * [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)
+      * [Table of assigment of BUSCO genes](tables/BUSCO_assigned.tsv)
 
 #### GRC homolog identification in the _M. destructor_ (Cecidomyiidae) genome
 
